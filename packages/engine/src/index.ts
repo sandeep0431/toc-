@@ -8,3 +8,5 @@ export const VERSION = "0.1.0";
 export * from "./alphabet";
 export * from "./parser";
 export * from "./nfa";
+export * from "./dfa";
+export * from "./minimize";

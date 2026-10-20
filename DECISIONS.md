@@ -19,3 +19,11 @@ This document records key design and theoretical decisions made during the const
 ### 4. Minimization Algorithm Selection
 - **Decision:** Hopcroft's partition refinement algorithm $O(s \cdot |\Sigma| \log s)$ over table-filling (Myhill-Nerode Moore) algorithm $O(s^2 \cdot |\Sigma|)$.
 - **Rationale:** Superior computational complexity on larger payload automata; provides a partition refinement history that maps directly to the web UI's "Show merges" visualizer.
+
+### 5. Atomic Alphabet Partitioning for Subset Construction
+- **Decision:** Partition $\Sigma$ using the boundary points of all transitions in the NFA into elementary disjoint intervals.
+- **Rationale:** Guarantees that outgoing transitions from DFA states are strictly deterministic and pairwise disjoint, while allowing parallel edges to be merged cleanly via `charSetUnion` into legible edge plates (`[a-z]`, `\d`, etc.).
+
+### 6. Unanchored Matching & Trace Semantics
+- **Decision:** Implement unanchored search by attaching a universal self-loop to the start state, and declaring detection as `firstAcceptIndex !== null` (the automaton reached an accepting state at any point along the input string).
+- **Rationale:** Conforms directly to Section 3.6 of `instruction.md` and standard Aho-Corasick / lexical scanner theory without needing ad-hoc string slicing.
