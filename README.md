@@ -2,10 +2,13 @@
 
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.7-blue.svg)](https://www.typescriptlang.org/)
 [![Vitest](https://img.shields.io/badge/Tests-56%20Passed-brightgreen.svg)](https://vitest.dev/)
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-GitHub%20Pages-success.svg)](https://sandeep0431.github.io/toc-/)
 [![Zero-Dependency](https://img.shields.io/badge/Engine-Zero%20Runtime%20Dependencies-success.svg)]()
 [![Theory](https://img.shields.io/badge/Theory-TOC%20Course%20Project-orange.svg)]()
 
 > **Tripwire** is an automata-driven intrusion detection system (IDS) built from first principles for a Theory of Computation (TOC) course project. All detection decisions originate from finite automata built from scratch in pure TypeScript without external regex or automata libraries.
+>
+> 🌐 **Live Website:** [https://sandeep0431.github.io/toc-/](https://sandeep0431.github.io/toc-/)
 
 ---
 
