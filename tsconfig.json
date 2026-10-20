@@ -1,0 +1,12 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "composite": false
+  },
+  "references": [
+    { "path": "./packages/engine" },
+    { "path": "./apps/cli" },
+    { "path": "./apps/web" }
+  ],
+  "files": []
+}

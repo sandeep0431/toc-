@@ -1,0 +1,21 @@
+# Architecture & Engineering Decisions
+
+This document records key design and theoretical decisions made during the construction of Tripwire.
+
+## Decision Log
+
+### 1. Monorepo Structure & TypeScript Setup
+- **Decision:** Use native npm workspaces with strict TypeScript (`strict: true`, `noImplicitAny: true`, `isolatedModules: true`).
+- **Rationale:** Keeps dependencies clean and avoids workspace hoisting friction while guaranteeing strict type safety across engine, CLI, and web.
+
+### 2. Disjoint Character Set Representation in `alphabet.ts`
+- **Decision:** Alphabet covers printable ASCII (codes 32–126), `\t` (code 9), and a designated `OTHER` symbol (-1). Transitions store sorted disjoint inclusive ranges `[start, end]`.
+- **Rationale:** Preserves graph readability by merging adjacent characters into single edge labels (e.g. `[a-z]`, `\d`) and handles arbitrary binary/non-ASCII safely without combinatorial explosion.
+
+### 3. Parser AST & Quantifier Desugaring
+- **Decision:** Desugar bounded quantifiers `{m}`, `{m,}`, `{m,n}` at the AST stage into sequences of concatenation and `?` operators before feeding into Thompson's NFA construction.
+- **Rationale:** Keeps Thompson's NFA construction primitive and theoretically pure (base fragments: literal, concat, union, star) while fully supporting practical regex features required by IDS rules.
+
+### 4. Minimization Algorithm Selection
+- **Decision:** Hopcroft's partition refinement algorithm $O(s \cdot |\Sigma| \log s)$ over table-filling (Myhill-Nerode Moore) algorithm $O(s^2 \cdot |\Sigma|)$.
+- **Rationale:** Superior computational complexity on larger payload automata; provides a partition refinement history that maps directly to the web UI's "Show merges" visualizer.

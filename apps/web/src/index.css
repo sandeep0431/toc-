@@ -1,0 +1,63 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --board: #0E1916;
+  --board-raised: #14231F;
+  --track: #2F4A41;
+  --track-dim: #223630;
+  --paper: #E9E4D2;
+  --paper-dim: #A8A592;
+  --lamp-amber: #FFB000;
+  --lamp-green: #7DF0B0;
+  --lamp-red: #FF4D2E;
+  --ink-on-paper: #1B1A14;
+  --tape: #EFE9D6;
+  --radius: 2px;
+}
+
+[data-theme="daylight"] {
+  --board: #EFEAD8;
+  --board-raised: #E2DCC6;
+  --track: #8C8673;
+  --track-dim: #B5AFA0;
+  --paper: #1B1A14;
+  --paper-dim: #555243;
+}
+
+body {
+  margin: 0;
+  background-color: var(--board);
+  color: var(--paper);
+  font-family: 'IBM Plex Mono', monospace;
+}
+
+/* Industrial bevel and panel styles */
+.panel-interlocking {
+  background-color: var(--board-raised);
+  border: 1px solid var(--track);
+  box-shadow: inset 1px 1px 0px rgba(255, 255, 255, 0.04), inset -1px -1px 0px rgba(0, 0, 0, 0.5);
+  position: relative;
+}
+
+.panel-rivet::before,
+.panel-rivet::after {
+  content: '';
+  position: absolute;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, #5a756b, #15221d);
+  box-shadow: 0 1px 1px rgba(0,0,0,0.6);
+}
+
+.panel-rivet::before { top: 4px; left: 4px; }
+.panel-rivet::after { top: 4px; right: 4px; }
+
+/* Fraunces small-caps plaques */
+.plaque-title {
+  font-family: 'Fraunces', serif;
+  font-variant: small-caps;
+  letter-spacing: 0.08em;
+}
