@@ -32,6 +32,12 @@ export const RuleBook: React.FC<RuleBookProps> = ({
 
   const handlePatternChange = (newVal: string) => {
     setEditingPattern(newVal);
+
+    if (newVal.trim().length === 0) {
+      setPatternError({ message: "Pattern cannot be empty", index: 0 });
+      return;
+    }
+
     try {
       parseRegex(newVal, { caseInsensitive: selectedRule?.caseInsensitive });
       setPatternError(null);

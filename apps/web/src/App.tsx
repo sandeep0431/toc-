@@ -39,8 +39,34 @@ export default function App() {
     return rules.find((r) => r.id === selectedRuleId) || rules[0];
   }, [rules, selectedRuleId]);
 
+  const fallbackRule: Rule = {
+    id: "IDLE",
+    name: "Standby route",
+    kind: "payload",
+    pattern: ".*",
+    severity: "low",
+    explain: "Awaiting pattern definition",
+  };
+
   const compiledRule: CompiledRule = useMemo(() => {
-    return compileRule(selectedRule);
+    const target = selectedRule || fallbackRule;
+    if (!target.pattern || target.pattern.trim().length === 0) {
+      try {
+        return compileRule({ ...target, pattern: ".*" });
+      } catch {
+        return compileRule(fallbackRule);
+      }
+    }
+
+    try {
+      return compileRule(target);
+    } catch {
+      try {
+        return compileRule({ ...target, pattern: ".*" });
+      } catch {
+        return compileRule(fallbackRule);
+      }
+    }
   }, [selectedRule]);
 
   // Log Events State
@@ -48,6 +74,10 @@ export default function App() {
   const [rawLogText, setRawLogText] = useState<string>(SAMPLE_LOGS.auth.content);
 
   const { events, skippedCount } = useMemo(() => {
+    if (!rawLogText || rawLogText.trim().length === 0) {
+      return { events: [], skippedCount: 0 };
+    }
+
     const isAuth =
       rawLogText.includes("sshd[") ||
       rawLogText.includes("Failed password") ||
@@ -58,7 +88,18 @@ export default function App() {
 
   // Precomputed full-scan alerts for the entire log
   const fullScanAlerts = useMemo(() => {
-    const allCompiled = rules.map((r) => compileRule(r));
+    if (events.length === 0) return [];
+
+    const allCompiled = rules
+      .map((r) => {
+        try {
+          return compileRule(r);
+        } catch {
+          return null;
+        }
+      })
+      .filter((r): r is CompiledRule => r !== null);
+
     return scan(events, allCompiled);
   }, [events, rules]);
 
@@ -107,6 +148,11 @@ export default function App() {
     }
 
     const currentEvent = events[activeLineIndex];
+    if (!currentEvent) {
+      setIsRunning(false);
+      return;
+    }
+
     setPreviousStateId(activeStateId);
 
     // Determine string or symbol to evaluate on current rule
