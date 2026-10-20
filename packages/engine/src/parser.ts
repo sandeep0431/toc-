@@ -212,7 +212,7 @@ export function parseRegex(pattern: string, options: ParserOptions = {}): ASTNod
     consume(); // eat '{'
 
     let minStr = "";
-    while (peek() !== null && /\d/.test(peek()!)) {
+    while (peek() !== null && peek()! >= "0" && peek()! <= "9") {
       minStr += consume();
     }
 
@@ -229,7 +229,7 @@ export function parseRegex(pattern: string, options: ParserOptions = {}): ASTNod
         max = null; // unbounded: {m,}
       } else {
         let maxStr = "";
-        while (peek() !== null && /\d/.test(peek()!)) {
+        while (peek() !== null && peek()! >= "0" && peek()! <= "9") {
           maxStr += consume();
         }
         if (maxStr.length === 0) {

@@ -27,3 +27,11 @@ This document records key design and theoretical decisions made during the const
 ### 6. Unanchored Matching & Trace Semantics
 - **Decision:** Implement unanchored search by attaching a universal self-loop to the start state, and declaring detection as `firstAcceptIndex !== null` (the automaton reached an accepting state at any point along the input string).
 - **Rationale:** Conforms directly to Section 3.6 of `instruction.md` and standard Aho-Corasick / lexical scanner theory without needing ad-hoc string slicing.
+
+### 7. Zero-RegExp Log Normalizers in `packages/engine`
+- **Decision:** Parse OpenSSH `auth.log` and Apache/Nginx combined access log lines using pure string boundary scanning (`indexOf`, `substring`, custom whitespace splitting) rather than regular expressions.
+- **Rationale:** Strictly enforces the project's hard constraint that `packages/engine` has zero dependency on regex engines, ensuring all pattern matching is performed exclusively by our custom finite automata.
+
+### 8. Sliding-Window Temporal Sequence Evaluation
+- **Decision:** Maintain a per-source event history queue bounded by `windowSeconds` ($t_{\text{current}} - t_{\text{event}} \le \Delta t$). Sequence DFAs evaluate the concatenated symbolic stream (e.g. `FFFS`). Upon firing an alert, the matching history is reset to prevent redundant duplicate alerts on future events.
+- **Rationale:** Matches stateful IDS semantics (such as Snort/Suricata thresholding) while mapping directly to standard DFA word recognition.

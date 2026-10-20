@@ -1,0 +1,46 @@
+[
+  {
+    "ruleId": "BRUTE-01",
+    "ruleName": "SSH brute force then success",
+    "severity": "high",
+    "source": "10.0.0.99",
+    "lineNumbers": [
+      3,
+      4,
+      5,
+      6
+    ],
+    "matchedSnippet": "FFFS",
+    "statePath": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
+    "timestamp": "2026-10-20T10:01:15.000Z"
+  },
+  {
+    "ruleId": "SCAN-PORT-01",
+    "ruleName": "Port probe scan",
+    "severity": "medium",
+    "source": "10.0.0.88",
+    "lineNumbers": [
+      9,
+      10,
+      11,
+      12,
+      13
+    ],
+    "matchedSnippet": "PPPPP",
+    "statePath": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "timestamp": "2026-10-20T10:03:08.000Z"
+  }
+]

@@ -1,0 +1,99 @@
+[
+  {
+    "id": "BRUTE-01",
+    "name": "SSH brute force then success",
+    "kind": "sequence",
+    "pattern": "F{3,}S",
+    "groupBy": "source",
+    "windowSeconds": 120,
+    "severity": "high",
+    "explain": "Three or more failures from one source followed by a success."
+  },
+  {
+    "id": "SPRAY-01",
+    "name": "SSH password spray",
+    "kind": "sequence",
+    "pattern": "F{10,}",
+    "groupBy": "source",
+    "windowSeconds": 300,
+    "severity": "high",
+    "explain": "Ten or more failed login attempts from a single source."
+  },
+  {
+    "id": "SCAN-PORT-01",
+    "name": "Port probe scan",
+    "kind": "sequence",
+    "pattern": "P{5,}",
+    "groupBy": "source",
+    "windowSeconds": 60,
+    "severity": "medium",
+    "explain": "Five or more connection refusions or probes within one minute."
+  },
+  {
+    "id": "SQLI-UNION",
+    "name": "SQL injection: UNION SELECT",
+    "kind": "payload",
+    "pattern": "UNION SELECT",
+    "field": "query",
+    "severity": "high",
+    "explain": "Union-based database exfiltration attempt in query string.",
+    "caseInsensitive": true
+  },
+  {
+    "id": "SQLI-TAUTOLOGY",
+    "name": "SQL injection: tautology bypass",
+    "kind": "payload",
+    "pattern": "' OR '1'='1",
+    "field": "query",
+    "severity": "high",
+    "explain": "Authentication bypass pattern ' OR '1'='1 in query parameter."
+  },
+  {
+    "id": "SQLI-COMMENT",
+    "name": "SQL injection: comment terminator",
+    "kind": "payload",
+    "pattern": "--",
+    "field": "query",
+    "severity": "medium",
+    "explain": "SQL comment terminator injected into query."
+  },
+  {
+    "id": "TRAV-01",
+    "name": "Directory traversal attack",
+    "kind": "payload",
+    "pattern": "(\\.\\./){2,}",
+    "field": "path",
+    "severity": "high",
+    "explain": "Two or more consecutive parent directory traversal segments (../)."
+  },
+  {
+    "id": "XSS-SCRIPT",
+    "name": "Cross-site scripting: script tag",
+    "kind": "payload",
+    "pattern": "<script",
+    "field": "query",
+    "severity": "high",
+    "explain": "Direct script element tag injection into query string.",
+    "caseInsensitive": true
+  },
+  {
+    "id": "XSS-HANDLER",
+    "name": "Cross-site scripting: onerror attribute",
+    "kind": "payload",
+    "pattern": "onerror=",
+    "field": "query",
+    "severity": "high",
+    "explain": "Inline error handler payload injection into query string.",
+    "caseInsensitive": true
+  },
+  {
+    "id": "AGENT-SCANNER",
+    "name": "Automated security scanner user-agent",
+    "kind": "payload",
+    "pattern": "sqlmap|nikto|nmap|curl/[0-9]",
+    "field": "userAgent",
+    "severity": "medium",
+    "explain": "Known offensive scanning utility identified in HTTP User-Agent header.",
+    "caseInsensitive": true
+  }
+]

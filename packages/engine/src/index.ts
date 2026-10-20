@@ -10,3 +10,8 @@ export * from "./parser";
 export * from "./nfa";
 export * from "./dfa";
 export * from "./minimize";
+export * from "./events";
+export * from "./normalize";
+export * from "./rules";
+export * from "./matcher";
+export * from "./detect";

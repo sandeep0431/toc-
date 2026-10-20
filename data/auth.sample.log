@@ -1,0 +1,14 @@
+Oct 20 10:00:01 server systemd[1]: Starting Daily apt download activities...
+Oct 20 10:00:15 server sshd[2001]: Accepted password for alice from 192.168.1.10 port 52314 ssh2
+Oct 20 10:01:00 server sshd[2010]: Failed password for root from 10.0.0.99 port 41201 ssh2
+Oct 20 10:01:05 server sshd[2011]: Failed password for root from 10.0.0.99 port 41202 ssh2
+Oct 20 10:01:10 server sshd[2012]: Failed password for root from 10.0.0.99 port 41203 ssh2
+Oct 20 10:01:15 server sshd[2013]: Accepted password for root from 10.0.0.99 port 41204 ssh2
+Oct 20 10:02:00 server sshd[2020]: Failed password for bob from 192.168.1.20 port 53100 ssh2
+Oct 20 10:02:10 server sshd[2021]: Accepted password for bob from 192.168.1.20 port 53101 ssh2
+Oct 20 10:03:00 server sshd[2030]: Connection refused from 10.0.0.88 port 1100 ssh2
+Oct 20 10:03:02 server sshd[2031]: Connection refused from 10.0.0.88 port 1101 ssh2
+Oct 20 10:03:04 server sshd[2032]: Connection refused from 10.0.0.88 port 1102 ssh2
+Oct 20 10:03:06 server sshd[2033]: Connection refused from 10.0.0.88 port 1103 ssh2
+Oct 20 10:03:08 server sshd[2034]: Connection refused from 10.0.0.88 port 1104 ssh2
+Oct 20 10:04:00 server sshd[2040]: Accepted password for charlie from 192.168.1.30 port 54000 ssh2
