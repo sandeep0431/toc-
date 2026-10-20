@@ -148,7 +148,28 @@ npm run dev
 
 ---
 
-### 4. Helper Scripts
+### 4. Deploying to GitHub Pages 🌐
+
+The project is fully pre-configured for GitHub Pages:
+
+#### Method A: Automated Deployment via GitHub Actions (Recommended)
+1. Push your repository to GitHub:
+   ```bash
+   git push origin main
+   ```
+2. On GitHub, go to your repository **Settings** → **Pages**.
+3. Under **Build and deployment** → **Source**, select **GitHub Actions**.
+4. The workflow in `.github/workflows/deploy.yml` will automatically build and publish your site!
+
+#### Method B: Manual Deploy using `gh-pages`
+```bash
+# Builds the web application and pushes apps/web/dist to the gh-pages branch
+npm run deploy
+```
+
+---
+
+### 5. Helper Scripts
 
 ```bash
 # Display automata compilation statistics across classical and security patterns
