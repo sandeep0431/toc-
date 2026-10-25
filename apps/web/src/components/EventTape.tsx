@@ -7,6 +7,7 @@ interface EventTapeProps {
   activeLineIndex: number;
   trippedLineNumbers: Set<number>;
   skippedCount: number;
+  activeSampleKey: string;
   onSelectSample: (sampleKey: string) => void;
   onLoadCustomLog: (content: string) => void;
 }
@@ -16,6 +17,7 @@ export const EventTape: React.FC<EventTapeProps> = ({
   activeLineIndex,
   trippedLineNumbers,
   skippedCount,
+  activeSampleKey,
   onSelectSample,
   onLoadCustomLog,
 }) => {
@@ -69,12 +71,14 @@ export const EventTape: React.FC<EventTapeProps> = ({
       <div className="px-2 py-1.5 border-b border-stone-300 bg-stone-100 flex items-center justify-between text-[11px] font-mono">
         <span className="text-stone-500 text-[10px]">SAMPLE:</span>
         <select
+          value={activeSampleKey}
           onChange={(e) => onSelectSample(e.target.value)}
           className="bg-white border border-stone-300 px-1 py-0.5 text-ink-on-paper text-xs max-w-[180px] truncate"
         >
           <option value="auth">SSH Auth Log (Brute Force)</option>
           <option value="access">Nginx Access Log (Web Attacks)</option>
           <option value="benign">Benign Traffic (Clean)</option>
+          {activeSampleKey === "custom" && <option value="custom">Custom Tape Feed</option>}
         </select>
         {skippedCount > 0 && (
           <span className="text-[9px] text-stone-500" title={`${skippedCount} unrecognized lines skipped`}>
@@ -90,9 +94,37 @@ export const EventTape: React.FC<EventTapeProps> = ({
           onDrop={handleFileDrop}
           className="p-3 border-b-2 border-dashed border-stone-400 bg-stone-50 text-xs space-y-2"
         >
-          <div className="text-[10px] font-mono font-bold text-stone-700">FEED THE TAPE</div>
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-mono font-bold text-stone-700">FEED THE TAPE</span>
+            <div className="flex space-x-1">
+              <button
+                type="button"
+                onClick={() =>
+                  setPastedLog(
+                    "GET /search?id=1 UNION SELECT password FROM users HTTP/1.1\nGET /login?user=admin' OR '1'='1 HTTP/1.1\nGET /index.php?q=<script>alert(1)</script> HTTP/1.1\nGET /static/../../etc/passwd HTTP/1.1"
+                  )
+                }
+                className="text-[9px] px-1 py-0.5 bg-stone-200 hover:bg-stone-300 text-stone-800 border border-stone-400 font-mono"
+                title="Fill with SQLi/XSS/Traversal test payload lines"
+              >
+                + Web Attack
+              </button>
+              <button
+                type="button"
+                onClick={() =>
+                  setPastedLog(
+                    "Oct 20 10:14:20 server sshd[100]: Failed password for root from 192.168.1.99 port 22\nOct 20 10:14:21 server sshd[100]: Failed password for root from 192.168.1.99 port 22\nOct 20 10:14:22 server sshd[100]: Failed password for root from 192.168.1.99 port 22\nOct 20 10:14:23 server sshd[100]: Accepted password for root from 192.168.1.99 port 22"
+                  )
+                }
+                className="text-[9px] px-1 py-0.5 bg-stone-200 hover:bg-stone-300 text-stone-800 border border-stone-400 font-mono"
+                title="Fill with SSH Brute Force test lines"
+              >
+                + SSH Brute
+              </button>
+            </div>
+          </div>
           <textarea
-            placeholder="Paste raw auth.log or access.log content here, or drag & drop a file..."
+            placeholder="Paste raw log lines, SQLi/XSS queries, or symbol sequences (e.g. FFFS), or drag & drop a file..."
             value={pastedLog}
             onChange={(e) => setPastedLog(e.target.value)}
             className="w-full h-24 p-1.5 font-mono text-[11px] bg-white border border-stone-300 resize-none text-ink-on-paper focus:outline-none"

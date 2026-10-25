@@ -54,6 +54,11 @@ export function scan(events: readonly Event[], rules: readonly CompiledRule[]): 
         textToScan = event.fields[fieldName];
       }
 
+      // Fallback to raw text if field is empty/unextracted
+      if (!textToScan && event.raw) {
+        textToScan = event.raw;
+      }
+
       if (textToScan.length > 0) {
         const trace = run(cr.minDfa, textToScan);
         if (trace.accepted) {

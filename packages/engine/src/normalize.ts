@@ -270,3 +270,113 @@ export function parseAccessLog(content: string): { events: Event[]; skippedCount
 
   return { events, skippedCount };
 }
+
+/**
+ * Universal log parser that parses auth logs, access logs, or arbitrary custom text / payloads.
+ * Ensures custom test inputs punch onto the tape and evaluate against the automata cleanly.
+ */
+export function parseAnyLog(content: string): { events: Event[]; skippedCount: number } {
+  if (!content || content.trim().length === 0) {
+    return { events: [], skippedCount: 0 };
+  }
+
+  // 1. If content contains sshd or standard auth patterns, try parseAuthLog
+  if (
+    content.includes("sshd[") ||
+    content.includes("Failed password") ||
+    content.includes("Accepted password")
+  ) {
+    const authRes = parseAuthLog(content);
+    if (authRes.events.length > 0) {
+      return authRes;
+    }
+  }
+
+  // 2. Try parseAccessLog
+  const accessRes = parseAccessLog(content);
+  if (accessRes.events.length > 0) {
+    return accessRes;
+  }
+
+  // 3. Fallback: Parse arbitrary custom lines/payloads
+  const lines = content.split("\n");
+  const events: Event[] = [];
+  const baseTs = Date.now() - lines.length * 1000;
+
+  for (let i = 0; i < lines.length; i++) {
+    const rawLine = lines[i].trimEnd();
+    if (rawLine.trim().length === 0) {
+      continue;
+    }
+
+    const lineNumber = i + 1;
+    const ts = baseTs + i * 1000;
+
+    // Detect IP or use default source
+    let source = "10.0.0.1";
+    const tokens = rawLine.split(" ");
+    for (const tok of tokens) {
+      const parts = tok.split(".");
+      if (
+        parts.length === 4 &&
+        parts.every((p) => {
+          const n = parseInt(p, 10);
+          return !isNaN(n) && n >= 0 && n <= 255;
+        })
+      ) {
+        source = tok;
+        break;
+      }
+    }
+
+    // Determine derived symbol
+    let symbol: EventSymbol = "R";
+    const upper = rawLine.toUpperCase();
+    if (rawLine.trim().length === 1 && "FSPER".includes(upper.trim())) {
+      symbol = upper.trim() as EventSymbol;
+    } else if (upper.includes("FAIL") || upper.includes("DENY") || upper.includes("DROP")) {
+      symbol = "F";
+    } else if (upper.includes("ACCEPT") || upper.includes("SUCCESS") || upper.includes("ALLOW")) {
+      symbol = "S";
+    } else if (upper.includes("PROBE") || upper.includes("REFUSE") || upper.includes("SCAN")) {
+      symbol = "P";
+    } else if (
+      upper.includes("ERROR") ||
+      upper.includes("403") ||
+      upper.includes("404") ||
+      upper.includes("500")
+    ) {
+      symbol = "E";
+    }
+
+    // Determine fields
+    let path = rawLine;
+    let query = rawLine;
+    let userAgent = rawLine;
+
+    const qIdx = rawLine.indexOf("?");
+    if (qIdx !== -1) {
+      query = rawLine.substring(qIdx + 1);
+      const spaceBeforeQ = rawLine.lastIndexOf(" ", qIdx);
+      path = spaceBeforeQ !== -1 ? rawLine.substring(spaceBeforeQ + 1, qIdx) : rawLine.substring(0, qIdx);
+    }
+
+    events.push({
+      lineNumber,
+      ts,
+      source,
+      kind: upper.includes("SSH") || upper.includes("PASSWORD") ? "auth" : "web",
+      symbol,
+      raw: rawLine,
+      fields: {
+        raw: rawLine,
+        query,
+        path,
+        userAgent,
+        source,
+      },
+    });
+  }
+
+  return { events, skippedCount: 0 };
+}

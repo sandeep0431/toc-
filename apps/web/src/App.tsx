@@ -7,6 +7,7 @@ import {
   CompiledRule,
   parseAuthLog,
   parseAccessLog,
+  parseAnyLog,
   scan,
   run,
   VERSION,
@@ -78,12 +79,7 @@ export default function App() {
       return { events: [], skippedCount: 0 };
     }
 
-    const isAuth =
-      rawLogText.includes("sshd[") ||
-      rawLogText.includes("Failed password") ||
-      rawLogText.includes("Accepted password");
-
-    return isAuth ? parseAuthLog(rawLogText) : parseAccessLog(rawLogText);
+    return parseAnyLog(rawLogText);
   }, [rawLogText]);
 
   // Precomputed full-scan alerts for the entire log
@@ -102,6 +98,17 @@ export default function App() {
 
     return scan(events, allCompiled);
   }, [events, rules]);
+
+  // Direct Interactive Automaton String Probe State
+  const [probeString, setProbeString] = useState<string>("");
+  const probeTrace = useMemo(() => {
+    if (!probeString || probeString.length === 0) return null;
+    try {
+      return run(compiledRule.minDfa, probeString);
+    } catch {
+      return null;
+    }
+  }, [probeString, compiledRule]);
 
   // Stepping & Interlocking Engine State
   const [activeLineIndex, setActiveLineIndex] = useState<number>(0);
@@ -134,10 +141,10 @@ export default function App() {
     setSelectedAlert(null);
   }, [compiledRule]);
 
-  // Reset when selected rule changes
+  // Reset when selected rule or compiled automaton changes
   useEffect(() => {
     handleReset();
-  }, [selectedRuleId, handleReset]);
+  }, [selectedRuleId, compiledRule, handleReset]);
 
   // Single Step Function
   const handleStep = useCallback(() => {
@@ -162,7 +169,7 @@ export default function App() {
       textToEvaluate =
         field === "raw"
           ? currentEvent.raw
-          : currentEvent.fields[field] || "";
+          : currentEvent.fields[field] || currentEvent.raw;
     } else {
       // Sequence rule: evaluate cumulative symbol sequence up to current line
       const relevantEvents = events.slice(0, activeLineIndex + 1).filter((e) => e.source === currentEvent.source);
@@ -286,11 +293,17 @@ export default function App() {
     const sample = SAMPLE_LOGS[sampleKey];
     if (sample) {
       setRawLogText(sample.content);
+      if (sample.type === "web") {
+        setSelectedRuleId("SQLI-UNION");
+      } else if (sample.type === "auth") {
+        setSelectedRuleId("BRUTE-01");
+      }
       handleReset();
     }
   };
 
   const handleLoadCustomLog = (content: string) => {
+    setActiveSampleKey("custom");
     setRawLogText(content);
     handleReset();
   };
@@ -395,7 +408,11 @@ export default function App() {
             ) : (
               <TrackDiagram
                 compiledRule={compiledRule}
-                activeStateId={activeStateId}
+                activeStateId={
+                  probeTrace && probeTrace.states.length > 0
+                    ? probeTrace.states[probeTrace.states.length - 1]
+                    : activeStateId
+                }
                 previousStateId={previousStateId}
                 onOpenConstruction={() => setShowConstruction(true)}
                 onOpenMerges={() => setShowMerges(true)}
@@ -424,6 +441,72 @@ export default function App() {
             )}
           </div>
 
+          {/* Direct Interactive Automaton String Probe Input */}
+          <div className="border-t border-track bg-board-raised p-2 flex flex-col space-y-1.5 shrink-0 text-xs font-mono">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <span className="plaque-title text-lamp-amber text-[10px] font-bold">AUTOMATON PROBE</span>
+                <span className="text-[10px] text-paper-dim">Test any string against {selectedRule.id} DFA:</span>
+              </div>
+              {probeTrace && (
+                <div className="flex items-center space-x-2">
+                  <span
+                    className={`px-1.5 py-0.2 text-[9px] font-bold border ${
+                      probeTrace.accepted
+                        ? "bg-lamp-green/20 text-lamp-green border-lamp-green"
+                        : "bg-lamp-red/20 text-lamp-red border-lamp-red"
+                    }`}
+                  >
+                    {probeTrace.accepted ? "ACCEPTED (TRIPPED)" : "REJECTED (NO TRIP)"}
+                  </span>
+                  <span className="text-[10px] text-paper-dim font-mono">
+                    Path: {probeTrace.states.map((s) => `q${s}`).join(" → ")}
+                  </span>
+                </div>
+              )}
+            </div>
+
+            <div className="flex items-center space-x-2">
+              <input
+                type="text"
+                placeholder={
+                  selectedRule.kind === "sequence"
+                    ? 'Type sequence string (e.g. "FFFS", "PPPPP")...'
+                    : 'Type test payload (e.g. "UNION SELECT", "\' OR \'1\'=\'1", "<script>")...'
+                }
+                value={probeString}
+                onChange={(e) => setProbeString(e.target.value)}
+                className="flex-1 bg-board border border-track px-2 py-1 text-xs text-lamp-amber font-mono focus:outline-none focus:border-lamp-amber placeholder:text-paper-dim/40"
+              />
+              {probeString.length > 0 && (
+                <button
+                  type="button"
+                  onClick={() => setProbeString("")}
+                  className="px-2 py-1 border border-track text-paper-dim hover:text-paper text-[10px]"
+                  title="Clear probe string"
+                >
+                  CLEAR
+                </button>
+              )}
+              {/* Presets */}
+              <div className="flex items-center space-x-1 shrink-0">
+                {(selectedRule.kind === "sequence"
+                  ? ["FFFS", "PPPP", "SS"]
+                  : ["UNION SELECT", "' OR '1'='1", "<script", "safe query"]
+                ).map((example) => (
+                  <button
+                    key={example}
+                    type="button"
+                    onClick={() => setProbeString(example)}
+                    className="px-1.5 py-0.5 border border-track bg-board text-paper-dim hover:text-paper text-[9px]"
+                  >
+                    {example}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
           {/* Pinned Stepping Controls */}
           <InterlockingControls
             isRunning={isRunning}
@@ -446,6 +529,7 @@ export default function App() {
             activeLineIndex={activeLineIndex}
             trippedLineNumbers={trippedLineNumbers}
             skippedCount={skippedCount}
+            activeSampleKey={activeSampleKey}
             onSelectSample={handleSelectSample}
             onLoadCustomLog={handleLoadCustomLog}
           />
@@ -462,6 +546,9 @@ export default function App() {
           alerts={displayAlerts}
           onSelectAlert={handleSelectAlert}
           selectedAlert={selectedAlert}
+          trippedLineNumbers={trippedLineNumbers}
+          activeLineIndex={activeLineIndex}
+          totalEventsCount={events.length}
         />
       </div>
 

@@ -30,6 +30,11 @@ export const RuleBook: React.FC<RuleBookProps> = ({
 
   const selectedRule = rules.find((r) => r.id === selectedRuleId) || rules[0];
 
+  React.useEffect(() => {
+    setEditingPattern(null);
+    setPatternError(null);
+  }, [selectedRuleId]);
+
   const handlePatternChange = (newVal: string) => {
     setEditingPattern(newVal);
 

@@ -5,17 +5,35 @@ interface AlertRegisterProps {
   alerts: Alert[];
   onSelectAlert: (alert: Alert) => void;
   selectedAlert: Alert | null;
+  trippedLineNumbers?: Set<number>;
+  activeLineIndex?: number;
+  totalEventsCount?: number;
 }
 
 export const AlertRegister: React.FC<AlertRegisterProps> = ({
   alerts,
   onSelectAlert,
   selectedAlert,
+  trippedLineNumbers,
+  activeLineIndex = 0,
+  totalEventsCount = 0,
 }) => {
   const [filterSeverity, setFilterSeverity] = useState<string>("ALL");
   const [isExpanded, setIsExpanded] = useState<boolean>(false);
+  const [viewMode, setViewMode] = useState<"ALL" | "STEPPED">("ALL");
 
-  const filteredAlerts = alerts.filter((a) => {
+  const liveTrippedCount = alerts.filter((a) =>
+    a.lineNumbers.some((ln) => trippedLineNumbers?.has(ln))
+  ).length;
+
+  const baseList =
+    viewMode === "STEPPED"
+      ? alerts.filter((a) =>
+          a.lineNumbers.some((ln) => trippedLineNumbers?.has(ln))
+        )
+      : alerts;
+
+  const filteredAlerts = baseList.filter((a) => {
     if (filterSeverity === "ALL") return true;
     return a.severity.toUpperCase() === filterSeverity;
   });
@@ -30,10 +48,39 @@ export const AlertRegister: React.FC<AlertRegisterProps> = ({
       <div className="h-8 px-3 border-b border-track flex items-center justify-between bg-board text-xs">
         <div className="flex items-center space-x-3">
           <span className="plaque-title text-paper font-semibold tracking-wider">ALERT REGISTER</span>
-          <span className="font-mono text-[10px] text-paper-dim">[{alerts.length} TRIPPED]</span>
+          <span className="font-mono text-[10px] text-paper-dim">
+            [{alerts.length} DETECTED
+            {totalEventsCount > 0 ? ` | ${liveTrippedCount} LIVE TRIPPED` : ""}]
+          </span>
+
+          {/* View mode toggle: ALL vs STEPPED ONLY */}
+          <div className="flex items-center space-x-1 border border-track px-1 py-0.2 bg-board-raised">
+            <button
+              onClick={() => setViewMode("ALL")}
+              className={`text-[9px] font-mono px-1 transition-colors ${
+                viewMode === "ALL"
+                  ? "bg-track text-paper font-bold"
+                  : "text-paper-dim hover:text-paper"
+              }`}
+              title="Show all detected alerts for current tape"
+            >
+              ALL ({alerts.length})
+            </button>
+            <button
+              onClick={() => setViewMode("STEPPED")}
+              className={`text-[9px] font-mono px-1 transition-colors ${
+                viewMode === "STEPPED"
+                  ? "bg-lamp-red text-board font-bold"
+                  : "text-paper-dim hover:text-paper"
+              }`}
+              title="Show only alerts tripped up to current reading line"
+            >
+              STEPPED ({liveTrippedCount})
+            </button>
+          </div>
 
           {/* Severity filter toggle plates */}
-          <div className="flex items-center space-x-1 ml-4">
+          <div className="flex items-center space-x-1 ml-2">
             {(["ALL", "HIGH", "MEDIUM", "LOW"] as const).map((sev) => (
               <button
                 key={sev}
@@ -100,6 +147,11 @@ export const AlertRegister: React.FC<AlertRegisterProps> = ({
                   <span className="text-[10px] text-paper-dim shrink-0">
                     SRC: {alert.source} | LINE {alert.lineNumbers.join(",")}
                   </span>
+                  {alert.lineNumbers.some((ln) => trippedLineNumbers?.has(ln)) && (
+                    <span className="px-1 py-0.2 border border-lamp-red text-lamp-red text-[8px] font-bold animate-pulse">
+                      TRIPPED
+                    </span>
+                  )}
                 </div>
 
                 {/* State Path Strip */}
