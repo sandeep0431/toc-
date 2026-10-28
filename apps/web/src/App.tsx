@@ -470,11 +470,11 @@ export default function App() {
                   <span
                     className={`px-2 py-0.5 text-[10px] font-bold rounded-full border ${
                       probeTrace.accepted
-                        ? "bg-emerald-50 text-emerald-700 border-emerald-300 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800"
-                        : "bg-rose-50 text-rose-700 border-rose-300 dark:bg-rose-950/40 dark:text-rose-300 dark:border-rose-800"
+                        ? "bg-rose-50 text-rose-700 border-rose-300 dark:bg-rose-950/40 dark:text-rose-300 dark:border-rose-800"
+                        : "bg-emerald-50 text-emerald-700 border-emerald-300 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800"
                     }`}
                   >
-                    {probeTrace.accepted ? "✓ ACCEPTED (MATCH)" : "✕ REJECTED"}
+                    {probeTrace.accepted ? "🚨 ATTACK DETECTED" : "✓ SAFE / BENIGN (No Attack)"}
                   </span>
                   <span className="text-[11px] text-paper font-mono bg-board px-2 py-0.5 rounded font-semibold border border-track">
                     Path: {probeTrace.states.map((s) => `q${s}`).join(" → ")}
