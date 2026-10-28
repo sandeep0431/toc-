@@ -1,6 +1,6 @@
-import rulesJson from "../../../../data/rules.json";
-import authSampleLog from "../../../../data/auth.sample.log?raw";
-import accessSampleLog from "../../../../data/access.sample.log?raw";
+import rulesJson from "./rules.json";
+import authSampleLog from "./auth.sample.log?raw";
+import accessSampleLog from "./access.sample.log?raw";
 import { Rule } from "@tripwire/engine";
 
 export const DEFAULT_RULES: Rule[] = rulesJson as Rule[];

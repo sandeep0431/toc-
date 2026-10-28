@@ -11,7 +11,11 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
-    "jsx": "react-jsx"
+    "jsx": "react-jsx",
+    "baseUrl": ".",
+    "paths": {
+      "@tripwire/engine": ["../../packages/engine/src/index.ts"]
+    }
   },
   "include": ["src"]
 }

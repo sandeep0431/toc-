@@ -6,6 +6,11 @@ import path from "path";
 export default defineConfig({
   // Use relative base path so assets load correctly on GitHub Pages (e.g. /repo-name/)
   base: "./",
+  resolve: {
+    alias: {
+      "@tripwire/engine": path.resolve(__dirname, "../../packages/engine/src/index.ts"),
+    },
+  },
   plugins: [
     react(),
     {
