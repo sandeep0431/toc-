@@ -3,61 +3,80 @@
 @tailwind utilities;
 
 :root {
-  --board: #0E1916;
-  --board-raised: #14231F;
-  --track: #2F4A41;
-  --track-dim: #223630;
-  --paper: #E9E4D2;
-  --paper-dim: #A8A592;
-  --lamp-amber: #FFB000;
-  --lamp-green: #7DF0B0;
-  --lamp-red: #FF4D2E;
-  --ink-on-paper: #1B1A14;
-  --tape: #EFE9D6;
-  --radius: 2px;
+  /* Lean, clean modern studio palette (default) */
+  --board: #F8FAFC;         /* Clean background canvas */
+  --board-raised: #FFFFFF;  /* Crisp card surface */
+  --track: #E2E8F0;         /* Fine border line */
+  --track-dim: #CBD5E1;     /* Subtle divider */
+  --paper: #0F172A;         /* Slate-900 primary text */
+  --paper-dim: #64748B;     /* Slate-500 secondary text */
+  --lamp-amber: #D97706;    /* Active state (warm amber) */
+  --lamp-green: #059669;    /* Accepting state (emerald) */
+  --lamp-red: #E11D48;      /* Tripped intrusion alert (rose/crimson) */
+  --ink-on-paper: #0F172A;
+  --tape: #FFFFFF;
+  --radius: 8px;
 }
 
-[data-theme="daylight"] {
-  --board: #EFEAD8;
-  --board-raised: #E2DCC6;
-  --track: #8C8673;
-  --track-dim: #B5AFA0;
-  --paper: #1B1A14;
-  --paper-dim: #555243;
+[data-theme="dark"],
+.dark {
+  /* Crisp minimalist dark (zinc/graphite - not glowing blue AI) */
+  --board: #09090B;
+  --board-raised: #18181B;
+  --track: #27272A;
+  --track-dim: #3F3F46;
+  --paper: #F4F4F5;
+  --paper-dim: #A1A1AA;
+  --lamp-amber: #F59E0B;
+  --lamp-green: #10B981;
+  --lamp-red: #F43F5E;
+  --ink-on-paper: #F4F4F5;
+  --tape: #18181B;
 }
 
 body {
   margin: 0;
   background-color: var(--board);
   color: var(--paper);
-  font-family: 'IBM Plex Mono', monospace;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
 }
 
-/* Industrial bevel and panel styles */
+/* Modern clean card panels */
 .panel-interlocking {
   background-color: var(--board-raised);
   border: 1px solid var(--track);
-  box-shadow: inset 1px 1px 0px rgba(255, 255, 255, 0.04), inset -1px -1px 0px rgba(0, 0, 0, 0.5);
+  border-radius: var(--radius);
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04), 0 1px 2px -1px rgba(0, 0, 0, 0.02);
   position: relative;
 }
 
-.panel-rivet::before,
-.panel-rivet::after {
-  content: '';
-  position: absolute;
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: radial-gradient(circle at 30% 30%, #5a756b, #15221d);
-  box-shadow: 0 1px 1px rgba(0,0,0,0.6);
+/* Modern clean titles & section headers */
+.plaque-title {
+  font-family: 'Inter', -apple-system, sans-serif;
+  font-weight: 600;
+  letter-spacing: -0.01em;
 }
 
-.panel-rivet::before { top: 4px; left: 4px; }
-.panel-rivet::after { top: 4px; right: 4px; }
+/* Custom sleek scrollbar */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--track-dim);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--paper-dim);
+}
 
-/* Fraunces small-caps plaques */
-.plaque-title {
-  font-family: 'Fraunces', serif;
-  font-variant: small-caps;
-  letter-spacing: 0.08em;
+/* Subtle dot grid for graph canvas */
+.canvas-grid-bg {
+  background-color: var(--board);
+  background-image: radial-gradient(var(--track-dim) 1px, transparent 1px);
+  background-size: 16px 16px;
 }

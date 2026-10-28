@@ -13,6 +13,7 @@ interface TrackDiagramProps {
   compiledRule: CompiledRule;
   activeStateId: number | null;
   previousStateId: number | null;
+  isDark?: boolean;
   onOpenConstruction?: () => void;
   onOpenMerges?: () => void;
 }
@@ -40,6 +41,7 @@ export const TrackDiagram: React.FC<TrackDiagramProps> = ({
   compiledRule,
   activeStateId,
   previousStateId,
+  isDark = false,
   onOpenConstruction,
   onOpenMerges,
 }) => {
@@ -235,19 +237,19 @@ export const TrackDiagram: React.FC<TrackDiagramProps> = ({
   }, [currentNodes]);
 
   return (
-    <div className="h-full flex flex-col bg-board-raised border border-track panel-interlocking select-none relative overflow-hidden">
+    <div className="h-full flex flex-col bg-board-raised select-none relative overflow-hidden">
       {/* Center Top: Stage Switcher + Odometer Strip */}
-      <div className="h-10 px-3 border-b border-track flex items-center justify-between bg-board">
-        {/* Stage Tabs */}
-        <div className="flex items-center space-x-1">
+      <div className="h-11 px-3 border-b border-track flex items-center justify-between bg-board-raised shrink-0">
+        {/* Stage Tabs (Segmented Control) */}
+        <div className="flex items-center space-x-1 bg-board p-1 rounded-lg border border-track">
           {(["REGEX", "NFA", "DFA", "MIN-DFA"] as AutomataStage[]).map((tab) => (
             <button
               key={tab}
               onClick={() => setStage(tab)}
-              className={`px-2.5 py-1 text-xs font-mono tracking-wider transition-colors border ${
+              className={`px-3 py-1 text-xs font-medium rounded transition-all ${
                 stage === tab
-                  ? "bg-track text-paper border-track-dim font-bold shadow-inner"
-                  : "bg-transparent text-paper-dim border-transparent hover:text-paper hover:bg-board-raised"
+                  ? "bg-slate-900 text-white dark:bg-zinc-100 dark:text-zinc-900 font-semibold shadow-xs"
+                  : "text-paper-dim hover:text-paper hover:bg-slate-200/50 dark:hover:bg-zinc-800"
               }`}
             >
               {tab}
@@ -255,19 +257,18 @@ export const TrackDiagram: React.FC<TrackDiagramProps> = ({
           ))}
         </div>
 
-        {/* State Reduction Odometer Counter Strip */}
-        <div className="flex items-center space-x-2 font-mono text-xs">
-          <span className="text-paper-dim text-[11px]">MACHINE:</span>
-          <div className="flex items-center space-x-1 bg-board-raised px-2 py-0.5 border border-track text-[11px]">
-            <span className={stage === "NFA" ? "text-lamp-amber font-bold" : "text-paper-dim"}>
+        {/* State Reduction Counter Strip */}
+        <div className="flex items-center space-x-2 text-xs">
+          <div className="flex items-center space-x-2 bg-board px-2.5 py-1 rounded-md border border-track font-mono text-[11px]">
+            <span className={stage === "NFA" ? "text-amber-600 font-bold" : "text-paper-dim"}>
               NFA {nfaCount}
             </span>
-            <span className="text-track">→</span>
-            <span className={stage === "DFA" ? "text-lamp-amber font-bold" : "text-paper-dim"}>
+            <span className="text-paper-dim/40">→</span>
+            <span className={stage === "DFA" ? "text-amber-600 font-bold" : "text-paper-dim"}>
               DFA {dfaCount}
             </span>
-            <span className="text-track">→</span>
-            <span className={stage === "MIN-DFA" ? "text-lamp-green font-bold" : "text-paper-dim"}>
+            <span className="text-paper-dim/40">→</span>
+            <span className={stage === "MIN-DFA" ? "text-emerald-600 font-bold" : "text-paper-dim"}>
               MIN {minCount}
             </span>
           </div>
@@ -276,19 +277,19 @@ export const TrackDiagram: React.FC<TrackDiagramProps> = ({
           {stage === "DFA" && onOpenConstruction && (
             <button
               onClick={onOpenConstruction}
-              className="text-[10px] px-2 py-0.5 border border-track text-paper hover:bg-track"
+              className="text-xs px-2.5 py-1 rounded-md border border-track text-paper-dim hover:text-paper hover:bg-board font-medium transition-colors"
               title="View subset construction steps"
             >
-              Show construction
+              Subset Steps
             </button>
           )}
           {stage === "MIN-DFA" && onOpenMerges && (
             <button
               onClick={onOpenMerges}
-              className="text-[10px] px-2 py-0.5 border border-track text-paper hover:bg-track"
+              className="text-xs px-2.5 py-1 rounded-md border border-track text-paper-dim hover:text-paper hover:bg-board font-medium transition-colors"
               title="View partition refinement history"
             >
-              Show merges
+              Hopcroft Merges
             </button>
           )}
         </div>
@@ -296,54 +297,56 @@ export const TrackDiagram: React.FC<TrackDiagramProps> = ({
 
       {/* Regex Syntax View (when REGEX tab selected) */}
       {stage === "REGEX" ? (
-        <div className="flex-1 flex flex-col items-center justify-center p-6 text-center space-y-4">
-          <div className="plaque-title text-lamp-amber text-sm">SOURCE REGULAR EXPRESSION</div>
-          <div className="bg-board px-4 py-2 border border-track font-mono text-base text-paper select-all">
+        <div className="flex-1 flex flex-col items-center justify-center p-6 text-center space-y-4 canvas-grid-bg">
+          <div className="text-xs font-semibold tracking-wider text-paper-dim uppercase">COMPILED REGULAR EXPRESSION</div>
+          <div className="bg-board-raised px-5 py-3 border border-track rounded-lg font-mono text-base text-paper shadow-sm select-all">
             /{compiledRule.rule.pattern}/
           </div>
           <div className="text-xs text-paper-dim max-w-md leading-relaxed">
             {compiledRule.rule.explain}
           </div>
-          <div className="text-[11px] font-mono text-paper-dim border border-track-dim/50 p-2 bg-board/50">
-            AST Type: {compiledRule.ast.type} | ID: {compiledRule.ast.id}
+          <div className="text-[11px] font-mono text-paper-dim border border-track px-3 py-1.5 rounded-md bg-board">
+            AST Node: {compiledRule.ast.type} | ID: {compiledRule.ast.id}
           </div>
         </div>
       ) : (
         /* SVG Track Diagram */
         <div
-          className="flex-1 w-full h-full relative cursor-grab active:cursor-grabbing overflow-hidden"
+          className="flex-1 w-full h-full relative cursor-grab active:cursor-grabbing overflow-hidden canvas-grid-bg"
           onMouseDown={handleMouseDown}
           onMouseMove={handleMouseMove}
           onMouseUp={handleMouseUp}
           onWheel={handleWheel}
         >
           {/* Pan / Zoom Control Overlay */}
-          <div className="absolute bottom-3 left-3 z-10 flex items-center space-x-1 bg-board/90 p-1 border border-track text-xs">
+          <div className="absolute bottom-3 left-3 z-10 flex items-center space-x-1 bg-board-raised/90 backdrop-blur-sm p-1 rounded-lg border border-track shadow-md text-xs">
             <button
               onClick={() => setZoom((z) => Math.min(z * 1.2, 2.5))}
-              className="w-6 h-6 border border-track flex items-center justify-center text-paper hover:bg-track"
+              className="w-7 h-7 rounded border border-track flex items-center justify-center text-paper hover:bg-board font-bold"
               title="Zoom in"
             >
               +
             </button>
             <button
               onClick={() => setZoom((z) => Math.max(z / 1.2, 0.4))}
-              className="w-6 h-6 border border-track flex items-center justify-center text-paper hover:bg-track"
+              className="w-7 h-7 rounded border border-track flex items-center justify-center text-paper hover:bg-board font-bold"
               title="Zoom out"
             >
               -
             </button>
             <button
               onClick={handleFit}
-              className="px-2 h-6 border border-track flex items-center justify-center text-[10px] text-paper hover:bg-track font-mono"
+              className="px-2.5 h-7 rounded border border-track flex items-center justify-center text-[11px] text-paper hover:bg-board font-mono font-medium"
               title="Fit diagram"
             >
               FIT
             </button>
             <button
               onClick={() => setShowTrapState(!showTrapState)}
-              className={`px-2 h-6 border border-track text-[10px] font-mono transition-colors ${
-                showTrapState ? "bg-track text-paper font-bold" : "text-paper-dim hover:bg-track"
+              className={`px-2.5 h-7 rounded border text-[11px] font-mono font-medium transition-colors ${
+                showTrapState
+                  ? "bg-slate-900 text-white dark:bg-zinc-100 dark:text-zinc-900 border-slate-900 dark:border-zinc-100"
+                  : "border-track text-paper-dim hover:bg-board hover:text-paper"
               }`}
               title="Toggle dead/trap state"
             >
@@ -354,13 +357,13 @@ export const TrackDiagram: React.FC<TrackDiagramProps> = ({
           {/* Floating Tag for Selected DFA State */}
           {selectedNode && selectedNode.nfaStates && selectedNode.nfaStates.length > 0 && (
             <div
-              className="absolute z-20 bg-board border border-lamp-amber px-2.5 py-1 text-xs font-mono shadow-lg text-paper"
+              className="absolute z-20 bg-board-raised border border-amber-500 rounded-lg px-3 py-1.5 text-xs font-mono shadow-xl text-paper"
               style={{
                 left: Math.max(10, selectedNode.x * zoom + pan.x - 40),
                 top: Math.max(10, selectedNode.y * zoom + pan.y - 45),
               }}
             >
-              <span className="text-lamp-amber font-bold">q{selectedNode.id}</span> = &#123;{" "}
+              <span className="text-amber-600 font-bold">q{selectedNode.id}</span> = &#123;{" "}
               {selectedNode.nfaStates.map((s) => `q${s}`).join(", ")} &#125;
             </div>
           )}
@@ -398,7 +401,7 @@ export const TrackDiagram: React.FC<TrackDiagramProps> = ({
             style={{ backgroundColor: "transparent" }}
           >
             <defs>
-              {/* Arrow markers for rails */}
+              {/* Arrow markers */}
               <marker
                 id="rail-arrow"
                 viewBox="0 0 10 10"
@@ -408,7 +411,7 @@ export const TrackDiagram: React.FC<TrackDiagramProps> = ({
                 markerHeight="5"
                 orient="auto-start-reverse"
               >
-                <path d="M 0 1 L 9 5 L 0 9 z" fill="#2F4A41" />
+                <path d="M 0 1 L 9 5 L 0 9 z" fill={isDark ? "#71717A" : "#94A3B8"} />
               </marker>
 
               <marker
@@ -420,7 +423,7 @@ export const TrackDiagram: React.FC<TrackDiagramProps> = ({
                 markerHeight="5"
                 orient="auto-start-reverse"
               >
-                <path d="M 0 1 L 9 5 L 0 9 z" fill="#FFB000" />
+                <path d="M 0 1 L 9 5 L 0 9 z" fill="#D97706" />
               </marker>
             </defs>
 
@@ -435,7 +438,7 @@ export const TrackDiagram: React.FC<TrackDiagramProps> = ({
                   previousStateId === e.from && activeStateId === e.to;
 
                 if (e.isSelfLoop) {
-                  // Arc above lamp
+                  // Arc above node
                   const r = 22;
                   const loopPath = `M ${fromNode.x - 10} ${fromNode.y - r} C ${fromNode.x - 30} ${
                     fromNode.y - 65
@@ -446,28 +449,29 @@ export const TrackDiagram: React.FC<TrackDiagramProps> = ({
                       <path
                         d={loopPath}
                         fill="none"
-                        stroke={isActiveTransition ? "#FFB000" : "#2F4A41"}
-                        strokeWidth={isActiveTransition ? "2.5" : "1.5"}
+                        stroke={isActiveTransition ? "#D97706" : isDark ? "#52525B" : "#94A3B8"}
+                        strokeWidth={isActiveTransition ? "2.5" : "1.75"}
                         strokeDasharray={e.isEpsilon ? "3 3" : undefined}
                       />
                       {/* Midpoint plate */}
                       <rect
-                        x={fromNode.x - 14}
-                        y={fromNode.y - 68}
-                        width="28"
-                        height="14"
-                        fill="#14231F"
-                        stroke={isActiveTransition ? "#FFB000" : "#2F4A41"}
+                        x={fromNode.x - 15}
+                        y={fromNode.y - 70}
+                        width="30"
+                        height="16"
+                        fill={isDark ? "#27272A" : "#FFFFFF"}
+                        stroke={isActiveTransition ? "#D97706" : isDark ? "#3F3F46" : "#CBD5E1"}
                         strokeWidth="1"
-                        rx="1"
+                        rx="4"
                       />
                       <text
                         x={fromNode.x}
-                        y={fromNode.y - 58}
+                        y={fromNode.y - 59}
                         textAnchor="middle"
-                        fill="#E9E4D2"
+                        fill={isActiveTransition ? "#F59E0B" : isDark ? "#F4F4F5" : "#0F172A"}
                         fontSize="9"
-                        fontFamily="IBM Plex Mono"
+                        fontWeight="600"
+                        fontFamily="'JetBrains Mono', monospace"
                         pointerEvents="none"
                       >
                         {e.label}
@@ -491,7 +495,7 @@ export const TrackDiagram: React.FC<TrackDiagramProps> = ({
                 // Midpoint for label plate
                 const midX = (startX + endX) / 2;
                 const midY = (startY + endY) / 2;
-                const plateWidth = Math.max(22, e.label.length * 7 + 8);
+                const plateWidth = Math.max(24, e.label.length * 7 + 10);
 
                 return (
                   <g key={`rail-${idx}`}>
@@ -500,8 +504,8 @@ export const TrackDiagram: React.FC<TrackDiagramProps> = ({
                       y1={startY}
                       x2={endX}
                       y2={endY}
-                      stroke={isActiveTransition ? "#FFB000" : "#2F4A41"}
-                      strokeWidth={isActiveTransition ? "2.5" : "1.5"}
+                      stroke={isActiveTransition ? "#D97706" : isDark ? "#52525B" : "#94A3B8"}
+                      strokeWidth={isActiveTransition ? "2.5" : "1.75"}
                       strokeDasharray={e.isEpsilon ? "4 3" : undefined}
                       markerEnd={isActiveTransition ? "url(#rail-arrow-active)" : "url(#rail-arrow)"}
                     />
@@ -509,21 +513,22 @@ export const TrackDiagram: React.FC<TrackDiagramProps> = ({
                     {/* Rectangular Plate */}
                     <rect
                       x={midX - plateWidth / 2}
-                      y={midY - 7}
+                      y={midY - 8}
                       width={plateWidth}
-                      height="14"
-                      fill="#14231F"
-                      stroke={isActiveTransition ? "#FFB000" : "#2F4A41"}
+                      height="16"
+                      fill={isDark ? "#27272A" : "#FFFFFF"}
+                      stroke={isActiveTransition ? "#D97706" : isDark ? "#3F3F46" : "#CBD5E1"}
                       strokeWidth="1"
-                      rx="1"
+                      rx="4"
                     />
                     <text
                       x={midX}
-                      y={midY + 3}
+                      y={midY + 3.5}
                       textAnchor="middle"
-                      fill="#E9E4D2"
+                      fill={isActiveTransition ? "#F59E0B" : isDark ? "#F4F4F5" : "#0F172A"}
                       fontSize="9"
-                      fontFamily="IBM Plex Mono"
+                      fontWeight="600"
+                      fontFamily="'JetBrains Mono', monospace"
                       pointerEvents="none"
                     >
                       {e.label}
@@ -532,31 +537,33 @@ export const TrackDiagram: React.FC<TrackDiagramProps> = ({
                 );
               })}
 
-              {/* States: Signal Lamps */}
+              {/* States: Minimal Precision Nodes */}
               {currentNodes.map((node) => {
                 const isActive = activeStateId === node.id;
                 const isSelected = selectedNode?.id === node.id;
 
-                // Lamp color determination:
-                // If active and accept -> lamp-green
-                // If active and normal -> lamp-amber
-                // If inactive -> dark lens
-                let lampFill = "#11201B";
-                let lampGlow = "none";
-                let lampBorder = "#2F4A41";
+                let outerStroke = isDark ? "#52525B" : "#94A3B8";
+                let innerFill = isDark ? "#18181B" : "#FFFFFF";
+                let textColor = isDark ? "#F4F4F5" : "#0F172A";
 
                 if (isActive) {
                   if (node.isAccept) {
-                    lampFill = "#7DF0B0";
-                    lampGlow = "0 0 16px #7DF0B0";
-                    lampBorder = "#7DF0B0";
+                    outerStroke = "#10B981";
+                    innerFill = "#059669";
+                    textColor = "#FFFFFF";
                   } else {
-                    lampFill = "#FFB000";
-                    lampGlow = "0 0 12px #FFB000";
-                    lampBorder = "#FFB000";
+                    outerStroke = "#F59E0B";
+                    innerFill = "#D97706";
+                    textColor = "#FFFFFF";
                   }
                 } else if (node.isAccept) {
-                  lampBorder = "#4B7C6C";
+                  outerStroke = isDark ? "#10B981" : "#059669";
+                  innerFill = isDark ? "#064E3B" : "#ECFDF5";
+                  textColor = isDark ? "#A7F3D0" : "#065F46";
+                }
+
+                if (isSelected) {
+                  outerStroke = "#F59E0B";
                 }
 
                 return (
@@ -574,19 +581,24 @@ export const TrackDiagram: React.FC<TrackDiagramProps> = ({
                           y1="0"
                           x2="-24"
                           y2="0"
-                          stroke="#2F4A41"
+                          stroke={isDark ? "#71717A" : "#94A3B8"}
                           strokeWidth="2"
                           markerEnd="url(#rail-arrow)"
                         />
                       </g>
                     )}
 
-                    {/* Outer Ring */}
+                    {/* Outer Node Ring */}
                     <circle
                       r="20"
-                      fill="#14231F"
-                      stroke={isSelected ? "#FFB000" : lampBorder}
-                      strokeWidth={isSelected ? "2" : "1.5"}
+                      fill={innerFill}
+                      stroke={outerStroke}
+                      strokeWidth={isSelected || isActive ? "2.5" : "1.75"}
+                      style={{
+                        filter: isActive
+                          ? "drop-shadow(0 0 8px rgba(217, 119, 6, 0.4))"
+                          : "drop-shadow(0 1px 2px rgba(0, 0, 0, 0.05))",
+                      }}
                     />
 
                     {/* Double ring for accepting states */}
@@ -594,28 +606,19 @@ export const TrackDiagram: React.FC<TrackDiagramProps> = ({
                       <circle
                         r="16"
                         fill="none"
-                        stroke={lampBorder}
-                        strokeWidth="1.2"
+                        stroke={isActive ? "#FFFFFF" : isDark ? "#10B981" : "#059669"}
+                        strokeWidth="1.5"
                       />
                     )}
-
-                    {/* Inner Signal Lamp Lens */}
-                    <circle
-                      r={node.isAccept ? "11" : "12"}
-                      fill={lampFill}
-                      stroke={lampBorder}
-                      strokeWidth="1"
-                      style={{ filter: isActive ? `drop-shadow(${lampGlow})` : "none" }}
-                    />
 
                     {/* State label text */}
                     <text
                       textAnchor="middle"
                       dy="4"
-                      fill={isActive ? "#0E1916" : "#E9E4D2"}
+                      fill={textColor}
                       fontSize="10"
-                      fontFamily="IBM Plex Mono"
-                      fontWeight={isActive ? "bold" : "normal"}
+                      fontFamily="'JetBrains Mono', monospace"
+                      fontWeight={isActive || node.isAccept ? "700" : "600"}
                       pointerEvents="none"
                     >
                       {node.label}

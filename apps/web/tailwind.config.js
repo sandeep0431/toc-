@@ -1,5 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 export default {
+  darkMode: "class",
   content: [
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
@@ -7,24 +8,28 @@ export default {
   theme: {
     extend: {
       colors: {
-        board: "#0E1916",
-        "board-raised": "#14231F",
-        track: "#2F4A41",
-        "track-dim": "#223630",
-        paper: "#E9E4D2",
-        "paper-dim": "#A8A592",
-        "lamp-amber": "#FFB000",
-        "lamp-green": "#7DF0B0",
-        "lamp-red": "#FF4D2E",
-        "ink-on-paper": "#1B1A14",
-        tape: "#EFE9D6",
+        board: "var(--board)",
+        "board-raised": "var(--board-raised)",
+        track: "var(--track)",
+        "track-dim": "var(--track-dim)",
+        paper: "var(--paper)",
+        "paper-dim": "var(--paper-dim)",
+        "lamp-amber": "var(--lamp-amber)",
+        "lamp-green": "var(--lamp-green)",
+        "lamp-red": "var(--lamp-red)",
+        "ink-on-paper": "var(--ink-on-paper)",
+        tape: "var(--tape)",
       },
       fontFamily: {
-        serif: ["Fraunces", "serif"],
-        mono: ["'IBM Plex Mono'", "monospace"],
+        sans: ["Inter", "-apple-system", "BlinkMacSystemFont", "'Segoe UI'", "Roboto", "sans-serif"],
+        mono: ["'JetBrains Mono'", "'IBM Plex Mono'", "monospace"],
       },
       borderRadius: {
-        DEFAULT: "2px",
+        DEFAULT: "6px",
+        sm: "4px",
+        md: "8px",
+        lg: "12px",
+        xl: "16px",
       },
     },
   },

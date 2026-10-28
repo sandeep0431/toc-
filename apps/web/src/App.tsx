@@ -24,8 +24,8 @@ import { ShortcutModal } from "./components/ShortcutModal";
 import { PDAVisualizer } from "./components/PDAVisualizer";
 
 export default function App() {
-  // Theme & Modals
-  const [isDaylight, setIsDaylight] = useState<boolean>(false);
+  // Theme & Modals (Default is clean Studio light mode)
+  const [isDark, setIsDark] = useState<boolean>(false);
   const [showShortcuts, setShowShortcuts] = useState<boolean>(false);
   const [showConstruction, setShowConstruction] = useState<boolean>(false);
   const [showMerges, setShowMerges] = useState<boolean>(false);
@@ -121,14 +121,16 @@ export default function App() {
   const [isRunning, setIsRunning] = useState<boolean>(false);
   const [speed, setSpeed] = useState<number>(1);
 
-  // Sync daylight theme to document
+  // Sync dark theme to document (default is clean light studio)
   useEffect(() => {
-    if (isDaylight) {
-      document.documentElement.setAttribute("data-theme", "daylight");
+    if (isDark) {
+      document.documentElement.setAttribute("data-theme", "dark");
+      document.documentElement.classList.add("dark");
     } else {
       document.documentElement.removeAttribute("data-theme");
+      document.documentElement.classList.remove("dark");
     }
-  }, [isDaylight]);
+  }, [isDark]);
 
   // Reset execution route
   const handleReset = useCallback(() => {
@@ -312,46 +314,58 @@ export default function App() {
   const displayAlerts = fullScanAlerts.length > 0 ? fullScanAlerts : incrementalAlerts;
 
   return (
-    <div className="h-screen w-screen flex flex-col bg-board text-paper font-mono overflow-hidden select-none">
-      {/* 1. Signal Box Control Desk Header */}
-      <header className="h-10 border-b border-track flex items-center px-4 bg-board justify-between shrink-0">
-        <div className="flex items-center space-x-4">
+    <div className="h-screen w-screen flex flex-col bg-board text-paper font-sans overflow-hidden select-none">
+      {/* 1. Precision Studio Navigation Header */}
+      <header className="h-12 border-b border-track flex items-center px-4 bg-board-raised justify-between shrink-0 shadow-xs z-20">
+        <div className="flex items-center space-x-3">
           <div className="flex items-center space-x-2">
-            <span className="plaque-title text-lamp-amber font-bold text-base tracking-wider">TRIPWIRE</span>
-            <span className="text-[10px] text-paper-dim border border-track px-1.5 py-0.2 bg-board-raised">
-              INTERLOCKING BOX v{VERSION}
+            {/* Minimal Automata Node Icon */}
+            <div className="w-7 h-7 rounded-md bg-slate-900 text-white flex items-center justify-center font-mono font-bold text-xs shadow-xs">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="6" cy="12" r="3" />
+                <circle cx="18" cy="6" r="3" />
+                <circle cx="18" cy="18" r="3" />
+                <line x1="8.7" y1="10.7" x2="15.3" y2="7.3" />
+                <line x1="8.7" y1="13.3" x2="15.3" y2="16.7" />
+              </svg>
+            </div>
+            <span className="font-bold text-sm tracking-tight text-paper">TRIPWIRE</span>
+            <span className="text-[10px] text-paper-dim border border-track px-2 py-0.5 rounded-full bg-board font-mono font-medium">
+              TOC Engine v{VERSION}
             </span>
           </div>
-          <span className="hidden md:inline-block text-[11px] text-paper-dim/80">
+          <span className="hidden lg:inline-block text-[12px] text-paper-dim pl-2 border-l border-track">
             Automata-Driven Intrusion Detection System
           </span>
         </div>
 
-        <div className="flex items-center space-x-3 text-xs">
+        <div className="flex items-center space-x-2 text-xs">
           {/* PDA Toggle */}
           <button
             onClick={() => setShowPDA(!showPDA)}
-            className={`px-2 py-0.5 border font-mono text-[11px] transition-colors ${
-              showPDA ? "bg-lamp-amber text-board border-lamp-amber font-bold" : "border-track text-paper-dim hover:text-paper"
+            className={`px-2.5 py-1 rounded-md text-[11px] font-medium transition-all ${
+              showPDA
+                ? "bg-amber-600 text-white shadow-xs font-semibold"
+                : "border border-track text-paper-dim hover:text-paper hover:bg-board"
             }`}
             title="Toggle Pushdown Automaton (Dyck balanced delimiter checker)"
           >
-            {showPDA ? "CLOSE PDA" : "PDA STACK"}
+            {showPDA ? "Close PDA Stack" : "PDA Stack Analyzer"}
           </button>
 
-          {/* Daylight High Contrast Toggle */}
+          {/* Theme Toggle */}
           <button
-            onClick={() => setIsDaylight(!isDaylight)}
-            className="px-2 py-0.5 border border-track text-paper-dim hover:text-paper transition-colors text-[11px]"
-            title="Toggle daylight / dark mode"
+            onClick={() => setIsDark(!isDark)}
+            className="px-2.5 py-1 rounded-md border border-track text-paper-dim hover:text-paper hover:bg-board transition-all text-[11px] font-medium"
+            title="Toggle Studio Light / Minimal Dark mode"
           >
-            {isDaylight ? "NIGHT ◑" : "DAYLIGHT ◐"}
+            {isDark ? "Light Studio ☼" : "Dark Mode ☾"}
           </button>
 
           {/* Shortcut Help Button */}
           <button
             onClick={() => setShowShortcuts(true)}
-            className="w-6 h-6 border border-track flex items-center justify-center text-paper-dim hover:text-paper font-bold"
+            className="w-7 h-7 rounded-md border border-track flex items-center justify-center text-paper-dim hover:text-paper hover:bg-board font-semibold text-xs transition-colors"
             title="Keyboard shortcuts [?]"
           >
             ?
@@ -360,13 +374,15 @@ export default function App() {
       </header>
 
       {/* Mobile Tab Bar (visible below 768px) */}
-      <div className="md:hidden h-8 border-b border-track bg-board-raised flex items-center justify-around text-xs shrink-0">
+      <div className="md:hidden h-9 border-b border-track bg-board-raised flex items-center justify-around text-xs shrink-0 px-2">
         {(["rules", "track", "tape", "alerts", "pda"] as const).map((t) => (
           <button
             key={t}
             onClick={() => setActiveMobileTab(t)}
-            className={`capitalize px-2 py-1 text-[11px] font-mono ${
-              activeMobileTab === t ? "text-lamp-amber font-bold border-b-2 border-lamp-amber" : "text-paper-dim"
+            className={`capitalize px-3 py-1 text-xs rounded-md transition-colors ${
+              activeMobileTab === t
+                ? "bg-slate-900 text-white dark:bg-zinc-100 dark:text-zinc-900 font-semibold"
+                : "text-paper-dim hover:text-paper"
             }`}
           >
             {t}
@@ -374,11 +390,11 @@ export default function App() {
         ))}
       </div>
 
-      {/* 2. Main Control Desk Panels */}
-      <main className="flex-1 flex overflow-hidden p-2 gap-2 relative">
+      {/* 2. Main Precision Panels */}
+      <main className="flex-1 flex overflow-hidden p-3 gap-3 relative bg-board">
         {/* Left Column: Rule Book (24% desktop, or mobile tab) */}
         <div
-          className={`w-full md:w-[24%] h-full shrink-0 ${
+          className={`w-full md:w-[24%] h-full shrink-0 rounded-lg overflow-hidden border border-track bg-board-raised shadow-xs ${
             activeMobileTab === "rules" ? "block" : "hidden md:block"
           }`}
         >
@@ -398,7 +414,7 @@ export default function App() {
 
         {/* Center Column: Track Diagram + Interlocking Stepper (46% desktop, or mobile tab) */}
         <div
-          className={`flex-1 h-full flex flex-col min-w-0 ${
+          className={`flex-1 h-full flex flex-col min-w-0 rounded-lg overflow-hidden border border-track bg-board-raised shadow-xs ${
             activeMobileTab === "track" ? "flex" : "hidden md:flex"
           }`}
         >
@@ -414,6 +430,7 @@ export default function App() {
                     : activeStateId
                 }
                 previousStateId={previousStateId}
+                isDark={isDark}
                 onOpenConstruction={() => setShowConstruction(true)}
                 onOpenMerges={() => setShowMerges(true)}
               />
@@ -442,24 +459,24 @@ export default function App() {
           </div>
 
           {/* Direct Interactive Automaton String Probe Input */}
-          <div className="border-t border-track bg-board-raised p-2 flex flex-col space-y-1.5 shrink-0 text-xs font-mono">
+          <div className="border-t border-track bg-board-raised p-3 flex flex-col space-y-2 shrink-0 text-xs">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
-                <span className="plaque-title text-lamp-amber text-[10px] font-bold">AUTOMATON PROBE</span>
-                <span className="text-[10px] text-paper-dim">Test any string against {selectedRule.id} DFA:</span>
+                <span className="font-bold text-xs tracking-tight text-paper">Automaton String Probe</span>
+                <span className="text-[11px] text-paper-dim font-medium">Test arbitrary string on {selectedRule.id} DFA:</span>
               </div>
               {probeTrace && (
                 <div className="flex items-center space-x-2">
                   <span
-                    className={`px-1.5 py-0.2 text-[9px] font-bold border ${
+                    className={`px-2 py-0.5 text-[10px] font-bold rounded-full border ${
                       probeTrace.accepted
-                        ? "bg-lamp-green/20 text-lamp-green border-lamp-green"
-                        : "bg-lamp-red/20 text-lamp-red border-lamp-red"
+                        ? "bg-emerald-50 text-emerald-700 border-emerald-300 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800"
+                        : "bg-rose-50 text-rose-700 border-rose-300 dark:bg-rose-950/40 dark:text-rose-300 dark:border-rose-800"
                     }`}
                   >
-                    {probeTrace.accepted ? "ACCEPTED (TRIPPED)" : "REJECTED (NO TRIP)"}
+                    {probeTrace.accepted ? "✓ ACCEPTED (MATCH)" : "✕ REJECTED"}
                   </span>
-                  <span className="text-[10px] text-paper-dim font-mono">
+                  <span className="text-[11px] text-paper font-mono bg-board px-2 py-0.5 rounded font-semibold border border-track">
                     Path: {probeTrace.states.map((s) => `q${s}`).join(" → ")}
                   </span>
                 </div>
@@ -476,16 +493,16 @@ export default function App() {
                 }
                 value={probeString}
                 onChange={(e) => setProbeString(e.target.value)}
-                className="flex-1 bg-board border border-track px-2 py-1 text-xs text-lamp-amber font-mono focus:outline-none focus:border-lamp-amber placeholder:text-paper-dim/40"
+                className="flex-1 bg-board border border-track rounded-md px-3 py-1.5 text-xs font-semibold text-paper font-mono focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 placeholder:text-paper-dim/60"
               />
               {probeString.length > 0 && (
                 <button
                   type="button"
                   onClick={() => setProbeString("")}
-                  className="px-2 py-1 border border-track text-paper-dim hover:text-paper text-[10px]"
+                  className="px-2.5 py-1.5 rounded-md border border-track text-paper hover:bg-board text-xs font-semibold transition-colors"
                   title="Clear probe string"
                 >
-                  CLEAR
+                  Clear
                 </button>
               )}
               {/* Presets */}
@@ -498,7 +515,7 @@ export default function App() {
                     key={example}
                     type="button"
                     onClick={() => setProbeString(example)}
-                    className="px-1.5 py-0.5 border border-track bg-board text-paper-dim hover:text-paper text-[9px]"
+                    className="px-2 py-1 rounded-md border border-track bg-board text-paper hover:bg-board-raised text-[11px] font-mono font-semibold transition-colors"
                   >
                     {example}
                   </button>
@@ -520,7 +537,7 @@ export default function App() {
 
         {/* Right Column: Event Tape (30% desktop, or mobile tab) */}
         <div
-          className={`w-full md:w-[30%] h-full shrink-0 ${
+          className={`w-full md:w-[30%] h-full shrink-0 rounded-lg overflow-hidden border border-track bg-board-raised shadow-xs ${
             activeMobileTab === "tape" ? "block" : "hidden md:block"
           }`}
         >
@@ -538,8 +555,8 @@ export default function App() {
 
       {/* 3. Bottom Alert Register Drawer */}
       <div
-        className={`shrink-0 ${
-          activeMobileTab === "alerts" ? "block fixed inset-x-0 bottom-0 z-40" : "hidden md:block"
+        className={`shrink-0 z-30 ${
+          activeMobileTab === "alerts" ? "block fixed inset-x-0 bottom-0" : "hidden md:block"
         }`}
       >
         <AlertRegister

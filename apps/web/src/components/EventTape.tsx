@@ -49,31 +49,31 @@ export const EventTape: React.FC<EventTapeProps> = ({
   };
 
   return (
-    <div className="h-full flex flex-col bg-tape text-ink-on-paper border border-stone-400 select-none relative overflow-hidden shadow-sm">
-      {/* Tape Perforated Border Styling */}
-      <div className="h-9 px-3 border-b border-stone-300 flex items-center justify-between bg-tape">
+    <div className="h-full flex flex-col bg-board-raised text-paper select-none relative overflow-hidden">
+      {/* Tape Header */}
+      <div className="h-11 px-3 border-b border-track flex items-center justify-between bg-board-raised shrink-0">
         <div className="flex items-center space-x-2">
-          <span className="plaque-title text-ink-on-paper text-xs font-bold tracking-wider">EVENT TAPE</span>
-          <span className="text-[10px] font-mono text-stone-600">[{events.length} lines]</span>
+          <span className="font-semibold text-xs tracking-tight text-paper">Event Stream</span>
+          <span className="text-[10px] font-mono text-paper-dim bg-board px-1.5 py-0.2 rounded border border-track">
+            {events.length} lines
+          </span>
         </div>
-        <div className="flex items-center space-x-1.5">
-          <button
-            onClick={() => setIsFeedingTape(!isFeedingTape)}
-            className="text-[10px] px-2 py-0.5 border border-stone-400 hover:bg-stone-200 transition-colors font-mono font-semibold"
-            title="Paste or drop log files"
-          >
-            {isFeedingTape ? "CLOSE" : "FEED TAPE"}
-          </button>
-        </div>
+        <button
+          onClick={() => setIsFeedingTape(!isFeedingTape)}
+          className="text-xs px-2.5 py-1 rounded-md border border-track text-paper hover:bg-board font-medium transition-colors"
+          title="Paste or drop log files"
+        >
+          {isFeedingTape ? "Close" : "+ Feed Log"}
+        </button>
       </div>
 
       {/* Sample Selector Bar */}
-      <div className="px-2 py-1.5 border-b border-stone-300 bg-stone-100 flex items-center justify-between text-[11px] font-mono">
-        <span className="text-stone-500 text-[10px]">SAMPLE:</span>
+      <div className="px-3 py-2 border-b border-track bg-board/60 flex items-center justify-between text-xs shrink-0">
+        <span className="text-paper-dim text-[11px] font-medium">Dataset:</span>
         <select
           value={activeSampleKey}
           onChange={(e) => onSelectSample(e.target.value)}
-          className="bg-white border border-stone-300 px-1 py-0.5 text-ink-on-paper text-xs max-w-[180px] truncate"
+          className="bg-board-raised border border-track rounded px-2 py-1 text-paper text-xs max-w-[200px] truncate focus:outline-none focus:border-amber-500 font-medium"
         >
           <option value="auth">SSH Auth Log (Brute Force)</option>
           <option value="access">Nginx Access Log (Web Attacks)</option>
@@ -81,7 +81,7 @@ export const EventTape: React.FC<EventTapeProps> = ({
           {activeSampleKey === "custom" && <option value="custom">Custom Tape Feed</option>}
         </select>
         {skippedCount > 0 && (
-          <span className="text-[9px] text-stone-500" title={`${skippedCount} unrecognized lines skipped`}>
+          <span className="text-[10px] text-paper-dim" title={`${skippedCount} unrecognized lines skipped`}>
             ({skippedCount} skipped)
           </span>
         )}
@@ -92,11 +92,11 @@ export const EventTape: React.FC<EventTapeProps> = ({
         <div
           onDragOver={(e) => e.preventDefault()}
           onDrop={handleFileDrop}
-          className="p-3 border-b-2 border-dashed border-stone-400 bg-stone-50 text-xs space-y-2"
+          className="p-3 border-b border-dashed border-track bg-board text-xs space-y-2 shrink-0"
         >
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-mono font-bold text-stone-700">FEED THE TAPE</span>
-            <div className="flex space-x-1">
+            <span className="text-xs font-semibold text-paper">Feed Custom Log Data</span>
+            <div className="flex space-x-1.5">
               <button
                 type="button"
                 onClick={() =>
@@ -104,7 +104,7 @@ export const EventTape: React.FC<EventTapeProps> = ({
                     "GET /search?id=1 UNION SELECT password FROM users HTTP/1.1\nGET /login?user=admin' OR '1'='1 HTTP/1.1\nGET /index.php?q=<script>alert(1)</script> HTTP/1.1\nGET /static/../../etc/passwd HTTP/1.1"
                   )
                 }
-                className="text-[9px] px-1 py-0.5 bg-stone-200 hover:bg-stone-300 text-stone-800 border border-stone-400 font-mono"
+                className="text-[10px] px-2 py-0.5 rounded border border-track bg-board-raised text-paper-dim hover:text-paper font-mono transition-colors"
                 title="Fill with SQLi/XSS/Traversal test payload lines"
               >
                 + Web Attack
@@ -116,7 +116,7 @@ export const EventTape: React.FC<EventTapeProps> = ({
                     "Oct 20 10:14:20 server sshd[100]: Failed password for root from 192.168.1.99 port 22\nOct 20 10:14:21 server sshd[100]: Failed password for root from 192.168.1.99 port 22\nOct 20 10:14:22 server sshd[100]: Failed password for root from 192.168.1.99 port 22\nOct 20 10:14:23 server sshd[100]: Accepted password for root from 192.168.1.99 port 22"
                   )
                 }
-                className="text-[9px] px-1 py-0.5 bg-stone-200 hover:bg-stone-300 text-stone-800 border border-stone-400 font-mono"
+                className="text-[10px] px-2 py-0.5 rounded border border-track bg-board-raised text-paper-dim hover:text-paper font-mono transition-colors"
                 title="Fill with SSH Brute Force test lines"
               >
                 + SSH Brute
@@ -127,22 +127,22 @@ export const EventTape: React.FC<EventTapeProps> = ({
             placeholder="Paste raw log lines, SQLi/XSS queries, or symbol sequences (e.g. FFFS), or drag & drop a file..."
             value={pastedLog}
             onChange={(e) => setPastedLog(e.target.value)}
-            className="w-full h-24 p-1.5 font-mono text-[11px] bg-white border border-stone-300 resize-none text-ink-on-paper focus:outline-none"
+            className="w-full h-24 p-2 font-mono text-[11px] bg-board-raised border border-track rounded resize-none text-paper focus:outline-none focus:border-amber-500"
           />
           <button
             onClick={handlePasteSubmit}
-            className="w-full py-1 bg-stone-800 text-stone-100 hover:bg-stone-900 font-mono text-xs font-bold"
+            className="w-full py-1.5 bg-slate-900 text-white dark:bg-zinc-100 dark:text-zinc-900 hover:bg-slate-800 dark:hover:bg-zinc-200 text-xs font-semibold rounded shadow-xs transition-colors"
           >
-            PUNCH ONTO TAPE
+            Load into Stream
           </button>
         </div>
       )}
 
-      {/* Paper Strip Lines */}
-      <div className="flex-1 overflow-y-auto divide-y divide-stone-300/60 font-mono text-xs">
+      {/* Stream Lines */}
+      <div className="flex-1 overflow-y-auto divide-y divide-track font-mono text-xs">
         {events.length === 0 ? (
-          <div className="p-6 text-center text-stone-500 leading-relaxed">
-            The tape is empty. Feed it a log or pick a sample.
+          <div className="p-6 text-center text-paper-dim leading-relaxed">
+            The event stream is empty. Select a sample or paste custom logs.
           </div>
         ) : (
           events.map((ev, idx) => {
@@ -152,50 +152,42 @@ export const EventTape: React.FC<EventTapeProps> = ({
             return (
               <div
                 key={`line-${ev.lineNumber}`}
-                className={`flex items-center px-2 py-1.5 relative transition-colors ${
+                className={`flex items-center px-3 py-1.5 relative transition-colors ${
                   isReadingHead
-                    ? "bg-amber-100/80 border-l-4 border-l-lamp-red shadow-sm"
-                    : "hover:bg-stone-100/60"
+                    ? "bg-amber-100/70 dark:bg-amber-950/40 border-l-[3px] border-l-amber-600 font-semibold"
+                    : "hover:bg-board/60"
                 }`}
               >
-                {/* Optical reading head cursor marker */}
-                {isReadingHead && (
-                  <div
-                    className="absolute -left-1 top-1/2 -translate-y-1/2 w-2 h-2 bg-lamp-red rotate-45 pointer-events-none"
-                    title="Optical printing head marker"
-                  />
-                )}
-
                 {/* Margin: Line number */}
-                <div className="w-8 text-[10px] text-stone-400 font-mono shrink-0 text-right pr-2 select-none">
+                <div className="w-8 text-[11px] text-paper-dim font-mono font-bold shrink-0 text-right pr-2 select-none">
                   {ev.lineNumber}
                 </div>
 
                 {/* Symbol Gutter Badge */}
                 <div
-                  className={`w-5 h-5 flex items-center justify-center text-[10px] font-bold border font-mono shrink-0 mr-2 ${
+                  className={`w-5 h-5 flex items-center justify-center text-[10px] font-bold rounded border font-mono shrink-0 mr-2.5 ${
                     ev.symbol === "F"
-                      ? "bg-amber-200/50 border-amber-500 text-amber-900"
+                      ? "bg-amber-50 border-amber-300 text-amber-800 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-800"
                       : ev.symbol === "S"
-                      ? "bg-emerald-200/50 border-emerald-500 text-emerald-900"
+                      ? "bg-emerald-50 border-emerald-300 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800"
                       : ev.symbol === "P"
-                      ? "bg-rose-200/50 border-rose-500 text-rose-900"
-                      : "bg-stone-200/50 border-stone-400 text-stone-700"
+                      ? "bg-rose-50 border-rose-300 text-rose-800 dark:bg-rose-950/40 dark:text-rose-300 dark:border-rose-800"
+                      : "bg-board border-track text-paper"
                   }`}
                   title={`Derived symbol: ${ev.symbol}`}
                 >
                   {ev.symbol}
                 </div>
 
-                {/* Raw Event Text */}
-                <div className="flex-1 min-w-0 font-mono text-[11px] text-ink-on-paper truncate">
+                {/* Raw Event Text - HIGH CONTRAST */}
+                <div className="flex-1 min-w-0 font-mono text-[11px] font-semibold text-paper truncate">
                   {ev.raw}
                 </div>
 
-                {/* Vermilion TRIPPED Slam Stamp */}
+                {/* Clean TRIPPED Pill */}
                 {isTripped && (
                   <div
-                    className="ml-2 shrink-0 px-1.5 py-0.5 border-2 border-lamp-red text-lamp-red text-[9px] font-extrabold tracking-wider rotate-[-3deg] shadow-sm animate-pulse"
+                    className="ml-2 shrink-0 px-2 py-0.5 rounded-full border border-rose-300 bg-rose-50 text-rose-700 dark:bg-rose-950/50 dark:text-rose-300 dark:border-rose-800 text-[10px] font-bold tracking-wider shadow-2xs"
                     title="Intrusion alert tripped on this event"
                   >
                     TRIPPED
@@ -208,9 +200,12 @@ export const EventTape: React.FC<EventTapeProps> = ({
       </div>
 
       {/* Footer Info */}
-      <div className="h-6 px-3 border-t border-stone-300 bg-stone-100 flex items-center justify-between text-[10px] text-stone-500 font-mono">
-        <span>INTERLOCKING FEED ACTIVE</span>
-        <span>LINE {activeLineIndex + 1} OF {events.length}</span>
+      <div className="h-7 px-3 border-t border-track bg-board flex items-center justify-between text-[11px] text-paper-dim font-mono shrink-0">
+        <span className="flex items-center space-x-1.5">
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+          <span>Active Stream</span>
+        </span>
+        <span>Line {Math.min(activeLineIndex + 1, events.length)} of {events.length}</span>
       </div>
     </div>
   );

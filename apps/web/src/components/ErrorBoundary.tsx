@@ -31,37 +31,37 @@ export class ErrorBoundary extends Component<Props, State> {
   public render() {
     if (this.state.hasError) {
       return (
-        <div className="h-screen w-screen flex flex-col items-center justify-center bg-board text-paper font-mono p-6 select-none">
-          <div className="max-w-lg w-full bg-board-raised border border-lamp-red p-6 panel-interlocking shadow-2xl space-y-4">
-            <div className="flex items-center space-x-2 border-b border-track pb-3">
-              <span className="w-5 h-5 border border-lamp-red flex items-center justify-center text-lamp-red font-bold text-xs">
+        <div className="h-screen w-screen flex flex-col items-center justify-center bg-board text-paper font-sans p-6 select-none">
+          <div className="max-w-lg w-full bg-board-raised border border-rose-300 rounded-xl p-6 shadow-2xl space-y-4">
+            <div className="flex items-center space-x-2.5 border-b border-track pb-3">
+              <span className="w-6 h-6 rounded-full bg-rose-100 text-rose-700 flex items-center justify-center font-bold text-xs">
                 !
               </span>
-              <span className="plaque-title text-lamp-red text-sm font-bold tracking-wider">
-                INTERLOCKING BOARD FAULT DETECTED
+              <span className="font-semibold text-rose-700 text-sm tracking-tight">
+                Automata Rendering Exception
               </span>
             </div>
 
             <p className="text-xs text-paper-dim leading-relaxed">
-              An input or transition error occurred while rendering the automata state. The board has safely caught the exception to prevent system failure.
+              An input or transition fault occurred while rendering the automaton state. The system safely caught the exception.
             </p>
 
-            <div className="bg-board p-3 border border-track text-[11px] font-mono text-lamp-amber overflow-x-auto">
+            <div className="bg-board p-3 rounded-md border border-track text-xs font-mono text-rose-700 overflow-x-auto">
               {this.state.error?.message || "Unknown rendering fault"}
             </div>
 
             <div className="pt-2 flex justify-end space-x-3">
               <button
                 onClick={() => this.setState({ hasError: false, error: null })}
-                className="px-3 py-1.5 border border-track text-paper hover:bg-track text-xs font-mono font-semibold"
+                className="px-3 py-1.5 rounded-md border border-track text-paper hover:bg-board text-xs font-medium transition-colors"
               >
-                DISMISS & RETRY
+                Dismiss & Retry
               </button>
               <button
                 onClick={this.handleReset}
-                className="px-3 py-1.5 bg-lamp-red text-white text-xs font-mono font-bold hover:bg-rose-700 transition-colors"
+                className="px-3.5 py-1.5 rounded-md bg-rose-600 text-white text-xs font-semibold hover:bg-rose-700 transition-colors shadow-xs"
               >
-                RESET BOARD TO DEFAULTS
+                Reset to Defaults
               </button>
             </div>
           </div>

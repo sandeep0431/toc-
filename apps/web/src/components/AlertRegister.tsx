@@ -40,55 +40,54 @@ export const AlertRegister: React.FC<AlertRegisterProps> = ({
 
   return (
     <div
-      className={`border-t border-track bg-board-raised flex flex-col select-none transition-all duration-200 z-10 ${
-        isExpanded ? "h-64" : "h-36"
+      className={`border-t border-track bg-board-raised flex flex-col select-none transition-all duration-200 z-30 shadow-lg ${
+        isExpanded ? "h-72" : "h-36"
       }`}
     >
       {/* Header bar */}
-      <div className="h-8 px-3 border-b border-track flex items-center justify-between bg-board text-xs">
+      <div className="h-10 px-4 border-b border-track flex items-center justify-between bg-board-raised text-xs shrink-0">
         <div className="flex items-center space-x-3">
-          <span className="plaque-title text-paper font-semibold tracking-wider">ALERT REGISTER</span>
-          <span className="font-mono text-[10px] text-paper-dim">
-            [{alerts.length} DETECTED
-            {totalEventsCount > 0 ? ` | ${liveTrippedCount} LIVE TRIPPED` : ""}]
+          <span className="font-semibold text-xs tracking-tight text-paper">Alert Register</span>
+          <span className="font-mono text-[10px] text-paper-dim bg-board px-2 py-0.5 rounded border border-track">
+            {alerts.length} Detected {totalEventsCount > 0 ? `• ${liveTrippedCount} Tripped` : ""}
           </span>
 
           {/* View mode toggle: ALL vs STEPPED ONLY */}
-          <div className="flex items-center space-x-1 border border-track px-1 py-0.2 bg-board-raised">
+          <div className="flex items-center space-x-1 border border-track p-0.5 rounded-md bg-board">
             <button
               onClick={() => setViewMode("ALL")}
-              className={`text-[9px] font-mono px-1 transition-colors ${
+              className={`text-[10px] font-medium px-2 py-0.5 rounded transition-all ${
                 viewMode === "ALL"
-                  ? "bg-track text-paper font-bold"
+                  ? "bg-slate-900 text-white dark:bg-zinc-100 dark:text-zinc-900 font-semibold shadow-xs"
                   : "text-paper-dim hover:text-paper"
               }`}
               title="Show all detected alerts for current tape"
             >
-              ALL ({alerts.length})
+              All ({alerts.length})
             </button>
             <button
               onClick={() => setViewMode("STEPPED")}
-              className={`text-[9px] font-mono px-1 transition-colors ${
+              className={`text-[10px] font-medium px-2 py-0.5 rounded transition-all ${
                 viewMode === "STEPPED"
-                  ? "bg-lamp-red text-board font-bold"
+                  ? "bg-rose-600 text-white font-semibold shadow-xs"
                   : "text-paper-dim hover:text-paper"
               }`}
               title="Show only alerts tripped up to current reading line"
             >
-              STEPPED ({liveTrippedCount})
+              Live Tripped ({liveTrippedCount})
             </button>
           </div>
 
           {/* Severity filter toggle plates */}
-          <div className="flex items-center space-x-1 ml-2">
+          <div className="hidden sm:flex items-center space-x-1 ml-2">
             {(["ALL", "HIGH", "MEDIUM", "LOW"] as const).map((sev) => (
               <button
                 key={sev}
                 onClick={() => setFilterSeverity(sev)}
-                className={`px-1.5 py-0.5 text-[9px] font-mono border transition-colors ${
+                className={`px-2 py-0.5 text-[10px] font-medium rounded transition-colors ${
                   filterSeverity === sev
-                    ? "bg-track text-paper border-track-dim font-bold shadow-inner"
-                    : "text-paper-dim border-transparent hover:text-paper hover:bg-board-raised"
+                    ? "bg-slate-900 text-white dark:bg-zinc-100 dark:text-zinc-900 font-semibold"
+                    : "text-paper-dim hover:text-paper hover:bg-board"
                 }`}
               >
                 {sev}
@@ -99,67 +98,70 @@ export const AlertRegister: React.FC<AlertRegisterProps> = ({
 
         <button
           onClick={() => setIsExpanded(!isExpanded)}
-          className="text-[10px] font-mono text-paper-dim hover:text-paper px-2 py-0.5 border border-track"
+          className="text-xs font-medium text-paper-dim hover:text-paper px-2.5 py-1 rounded-md border border-track hover:bg-board transition-colors flex items-center space-x-1"
           title="Toggle drawer height"
         >
-          {isExpanded ? "COLLAPSE ▼" : "EXPAND ▲"}
+          <span>{isExpanded ? "Collapse" : "Expand"}</span>
+          <span>{isExpanded ? "▼" : "▲"}</span>
         </button>
       </div>
 
-      {/* Ledger list */}
-      <div className="flex-1 overflow-y-auto divide-y divide-track-dim/40 font-mono text-xs">
+      {/* Alert list */}
+      <div className="flex-1 overflow-y-auto divide-y divide-track font-mono text-xs">
         {filteredAlerts.length === 0 ? (
-          <div className="h-full flex items-center justify-center text-paper-dim text-xs">
-            Clear. No rule tripped across all evaluated lines.
+          <div className="h-full flex items-center justify-center text-paper-dim text-xs font-sans">
+            No active alerts matching current filter.
           </div>
         ) : (
           filteredAlerts.map((alert, idx) => {
             const isSelected = selectedAlert === alert;
-            const sevBadge = alert.severity === "high" ? "H" : alert.severity === "medium" ? "M" : "L";
-            const sevColor =
+            const sevBadge = alert.severity === "high" ? "High" : alert.severity === "medium" ? "Med" : "Low";
+            const sevStyle =
               alert.severity === "high"
-                ? "border-lamp-red text-lamp-red"
+                ? "bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-950/40 dark:text-rose-400 dark:border-rose-900"
                 : alert.severity === "medium"
-                ? "border-lamp-amber text-lamp-amber"
-                : "border-lamp-green text-lamp-green";
+                ? "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/40 dark:text-amber-400 dark:border-amber-900"
+                : "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-400 dark:border-emerald-900";
 
             return (
               <div
                 key={`alert-${idx}`}
                 onClick={() => onSelectAlert(alert)}
-                className={`p-2 flex items-center justify-between cursor-pointer transition-colors ${
-                  isSelected ? "bg-board border-l-2 border-l-lamp-red" : "hover:bg-board/60"
+                className={`px-4 py-2 flex items-center justify-between cursor-pointer transition-colors ${
+                  isSelected
+                    ? "bg-board border-l-[3px] border-l-rose-600"
+                    : "hover:bg-board/60"
                 }`}
-                title="Click to rewind tape and replay state path"
+                title="Click to replay state path on track diagram"
               >
-                <div className="flex items-center space-x-2.5 min-w-0">
-                  {/* Square Stamp */}
+                <div className="flex items-center space-x-3 min-w-0 font-sans">
+                  {/* Severity Badge */}
                   <span
-                    className={`w-4 h-4 border flex items-center justify-center text-[9px] font-bold shrink-0 ${sevColor}`}
+                    className={`px-1.5 py-0.5 border text-[10px] font-semibold rounded shrink-0 ${sevStyle}`}
                   >
                     {sevBadge}
                   </span>
 
-                  <span className="font-bold text-paper text-xs shrink-0">{alert.ruleId}</span>
-                  <span className="text-[11px] text-paper-dim font-serif truncate max-w-[200px]">
+                  <span className="font-mono font-bold text-paper text-xs shrink-0">{alert.ruleId}</span>
+                  <span className="text-xs text-paper font-medium truncate max-w-[220px]">
                     {alert.ruleName}
                   </span>
-                  <span className="text-[10px] text-paper-dim shrink-0">
-                    SRC: {alert.source} | LINE {alert.lineNumbers.join(",")}
+                  <span className="text-[11px] text-paper-dim font-mono shrink-0">
+                    SRC: {alert.source} • Line {alert.lineNumbers.join(",")}
                   </span>
                   {alert.lineNumbers.some((ln) => trippedLineNumbers?.has(ln)) && (
-                    <span className="px-1 py-0.2 border border-lamp-red text-lamp-red text-[8px] font-bold animate-pulse">
+                    <span className="px-2 py-0.5 rounded-full border border-rose-300 bg-rose-50 text-rose-700 dark:bg-rose-950/50 dark:text-rose-300 text-[9px] font-bold tracking-wider">
                       TRIPPED
                     </span>
                   )}
                 </div>
 
                 {/* State Path Strip */}
-                <div className="flex items-center space-x-3 shrink-0 ml-2">
-                  <div className="bg-board px-2 py-0.5 border border-track text-[10px] text-lamp-amber">
+                <div className="flex items-center space-x-3 shrink-0 ml-2 font-mono">
+                  <div className="bg-amber-50 dark:bg-amber-950/40 px-2.5 py-1 rounded-md border border-amber-300 dark:border-amber-800 text-[11px] text-amber-800 dark:text-amber-300 font-bold">
                     {alert.statePath.map((s) => `q${s}`).join(" → ")}
                   </div>
-                  <span className="text-[9px] text-paper-dim">
+                  <span className="text-[11px] text-paper-dim font-medium">
                     {new Date(alert.timestamp).toLocaleTimeString()}
                   </span>
                 </div>
