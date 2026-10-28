@@ -9,6 +9,7 @@
   ],
   "scripts": {
     "build": "npm run build --workspaces --if-present",
+    "vercel-build": "npm run build",
     "test": "vitest run",
     "dev": "npm run dev --workspace=apps/web",
     "cli": "npm run start --workspace=apps/cli --",
