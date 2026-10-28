@@ -8,7 +8,7 @@
     "apps/*"
   ],
   "scripts": {
-    "build": "npm run build --workspaces --if-present",
+    "build": "npm run build --workspaces --if-present && node scripts/copy-dist.js",
     "vercel-build": "npm run build",
     "test": "vitest run",
     "dev": "npm run dev --workspace=apps/web",
